@@ -1,0 +1,57 @@
+package com.lilac.aop;
+
+import com.lilac.annotation.AuthCheck;
+import com.lilac.domain.entity.User;
+import com.lilac.enums.HttpsCodeEnum;
+import com.lilac.enums.UserRoleEnum;
+import com.lilac.exception.BusinessException;
+import com.lilac.service.UserService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+@Aspect
+@Component
+public class AuthInterceptor {
+
+    @Resource
+    private UserService userService;
+
+    /**
+     * 执行拦截
+     *
+     * @param joinPoint 切入点
+     * @param authCheck 权限校验注解
+     * @return 执行结果
+     */
+    @Around("@annotation(authCheck)")
+    public Object doInterceptor(ProceedingJoinPoint joinPoint, AuthCheck authCheck) throws Throwable {
+        String mustRole = authCheck.mustRole();
+        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+        HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        UserRoleEnum mustRoleEnum = UserRoleEnum.getEnumByValue(mustRole);
+        // 如果不需要权限，则直接放行
+        if (mustRoleEnum == null) {
+            return joinPoint.proceed();
+        }
+        // 必须有权限
+        UserRoleEnum userRoleEnum = UserRoleEnum.getEnumByValue(loginUser.getUserRole());
+        if (userRoleEnum == null) {
+            throw new BusinessException(HttpsCodeEnum.UNAUTHORIZED);
+        }
+        // 必须是管理员
+        if (UserRoleEnum.ADMIN.equals(mustRoleEnum) && !UserRoleEnum.ADMIN.equals(userRoleEnum)) {
+            throw new BusinessException(HttpsCodeEnum.UNAUTHORIZED);
+        }
+        // 通过权限校验
+        return joinPoint.proceed();
+    }
+}
