@@ -31,7 +31,7 @@ import GlobalHeader from '@/components/GlobalHeader.vue'
 }
 
 #basicLayout .footer{
-    background: #efefef;
+    background: linear-gradient(to right, #efefef, #fff);
     padding: 10px;
     position: fixed;
     bottom: 0;

@@ -1,29 +1,30 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
+import { getLoginUser } from '@/api/userController';
 
-/**
- * 登录用户信息
- */
+//登录用户信息
 export const useLoginUserStore = defineStore('loginUser', () => {
-    const loginUser = ref<any>(
-        { username: '未登录' }
+    const loginUser = ref<API.LoginUserVO>(
+        { userName: '未登录' }
     );
 
+    //获取登录用户信息
     async function fetchLoginUser() {
-        // TODO: 获取登录用户信息
-        // const res = await getCurrentUser();
-        // if (res.data.code === 200 && res.data.data) {
-        //     loginUser.value = res;
-        // }
+        try {
+            const res = await getLoginUser();
+            
+            if (res.data.code === 200 && res.data.data) {
+                loginUser.value = res.data.data;
+            } else {
+                loginUser.value = { userName: '未登录' };
+            }
+        } catch (error) {
+            loginUser.value = { userName: '未登录' };
+        }
     }
 
-    function setLoginUser(newLoginUser: any) {
+    function setLoginUser(newLoginUser: API.LoginUserVO) {
         loginUser.value = newLoginUser;
     }
-
-    function logout() {
-        loginUser.value = null;
-    }
-
-    return { loginUser, fetchLoginUser, logout };
+    return { loginUser, fetchLoginUser, setLoginUser };
 })

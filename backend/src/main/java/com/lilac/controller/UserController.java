@@ -16,7 +16,6 @@ import com.lilac.service.UserService;
 import com.lilac.utils.ThrowUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.Getter;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

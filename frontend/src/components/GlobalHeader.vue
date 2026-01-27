@@ -10,14 +10,26 @@
                 </router-link>
             </a-col>
             <a-col flex="auto">
-                <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" @click="doMenuClick" /></a-col>
+                <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" @click="doMenuClick" />
+            </a-col>
+            <!-- 用户信息 -->
             <a-col flex="120px">
                 <div class="user-login-status">
                     <div v-if="loginUserStore.loginUser.id">
-                        {{ loginUserStore.loginUser.username ?? '用户' }}
+                        <a-dropdown>
+                            <a-space>
+                                <a-avatar :src="loginUserStore.loginUser.userAvatar" />
+                                {{ loginUserStore.loginUser.userName ?? '用户' }}
+                            </a-space>
+                            <template #overlay>
+                                <a-menu>
+                                    <a-menu-item key="logout" @click="doLogout"><LogoutOutlined />退出登录</a-menu-item>
+                                </a-menu>
+                            </template>
+                        </a-dropdown>
                     </div>
                     <div v-else>
-                        <a-button type="primary" href="/user/login">登录</a-button>
+                        <a-button type="primary" @click="router.push('/user/login')">登录</a-button>
                     </div>
                 </div>
             </a-col>
@@ -27,10 +39,11 @@
 
 <script setup lang="ts">
 import { h, ref } from 'vue';
-import { HomeOutlined } from '@ant-design/icons-vue';
-import type { MenuProps } from 'ant-design-vue';
+import { HomeOutlined, LogoutOutlined } from '@ant-design/icons-vue';
+import { message, type MenuProps } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
 import { useLoginUserStore } from '@/stores/useLoginUserStore';
+import { userLogout } from '@/api/userController';
 
 const loginUserStore = useLoginUserStore();
 
@@ -45,8 +58,8 @@ const items = ref<MenuProps['items']>([
         label: '关于',
     },
     {
-        key: '/contact',
-        label: '联系',
+        key: 'others',
+        label: h('a', { href: 'https://tanghc.xyz', target: '_blank' }, 'Blog'),
     },
 ]);
 
@@ -65,6 +78,14 @@ const doMenuClick = ({ key }: { key: string }) => {
     });
 }
 
+// 退出登录
+const doLogout = async () => {
+    const res = await userLogout();
+    loginUserStore.setLoginUser({ userName: '未登录' });
+    message.success('退出成功');
+    router.push('/user/login');
+}
+
 </script>
 
 <style scoped>
@@ -81,5 +102,6 @@ const doMenuClick = ({ key }: { key: string }) => {
 
 .logo {
     height: 48px;
+    border-radius: 50%;
 }
 </style>

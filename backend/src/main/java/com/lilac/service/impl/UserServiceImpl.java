@@ -46,10 +46,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (StrUtil.hasBlank(userAccount, userPassword, checkPassword)){
             throw new BusinessException(HttpsCodeEnum.PARAMS_ERROR, "参数不能为空");
         }
-        if (userAccount.length() < 4){
-            throw new BusinessException(HttpsCodeEnum.PARAMS_ERROR, "用户账号过短");
-        }
-        if (userPassword.length() < 8 || checkPassword.length() < 8){
+        if (userPassword.length() < 6 || checkPassword.length() < 6){
             throw new BusinessException(HttpsCodeEnum.PARAMS_ERROR, "用户密码过短");
         }
         if (!userPassword.equals(checkPassword)){
@@ -90,10 +87,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (StrUtil.hasBlank(userAccount, userPassword)){
             throw new BusinessException(HttpsCodeEnum.PARAMS_ERROR, "参数不能为空");
         }
-        if (userAccount.length() < 4){
+        if (userAccount.length() >= 256){
             throw new BusinessException(HttpsCodeEnum.USER_OR_PASSWORD_ERROR);
         }
-        if (userPassword.length() < 8){
+        if (userPassword.length() < 6 || userPassword.length() > 18){
             throw new BusinessException(HttpsCodeEnum.USER_OR_PASSWORD_ERROR);
         }
         // 密码加密
@@ -104,7 +101,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = this.baseMapper.selectOne(queryWrapper);
         if (user == null){
             log.info("user login failed,userAccount cannot match userPassword");
-            throw new BusinessException(HttpsCodeEnum.PARAMS_ERROR, "用户不存在或密码错误");
+            throw new BusinessException(HttpsCodeEnum.USER_OR_PASSWORD_ERROR);
         }
         // 保存用户状态
         request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
