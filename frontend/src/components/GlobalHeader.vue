@@ -23,7 +23,10 @@
                             </a-space>
                             <template #overlay>
                                 <a-menu>
-                                    <a-menu-item key="logout" @click="doLogout"><LogoutOutlined />退出登录</a-menu-item>
+                                  <a-menu-item key="logout" @click="doLogout">
+                                    <LogoutOutlined/>
+                                    退出登录
+                                  </a-menu-item>
                                 </a-menu>
                             </template>
                         </a-dropdown>
@@ -38,16 +41,18 @@
 </template>
 
 <script setup lang="ts">
-import { h, ref } from 'vue';
+import {computed, h, ref} from 'vue';
 import { HomeOutlined, LogoutOutlined } from '@ant-design/icons-vue';
 import { message, type MenuProps } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
 import { useLoginUserStore } from '@/stores/useLoginUserStore';
 import { userLogout } from '@/api/userController';
 
+const router = useRouter();
 const loginUserStore = useLoginUserStore();
 
-const items = ref<MenuProps['items']>([
+// 未经过过滤的菜单项
+const originItems = [
     {
         key: '/',
         icon: () => h(HomeOutlined),
@@ -61,9 +66,24 @@ const items = ref<MenuProps['items']>([
         key: 'others',
         label: h('a', { href: 'https://tanghc.xyz', target: '_blank' }, 'Blog'),
     },
-]);
+];
 
-const router = useRouter();
+// 过滤菜单
+const filterMenus = (menus = [] as MenuProps['items']) => {
+  return menus?.filter((menu) => {
+    // 管理员显示所有菜单，普通用户隐藏用户管理菜单
+    if (menu?.key?.startsWith('/admin')) {
+      const loginUser = loginUserStore.loginUser;
+      if (!loginUser || loginUser.userRole !== 'admin') {
+        return false;
+      }
+    }
+    return true;
+  });
+};
+
+// 展示的菜单的路由
+const items = computed(() => filterMenus(originItems));
 
 // 当前高亮菜单
 const current = ref<string[]>([]);

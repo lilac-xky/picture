@@ -4,22 +4,52 @@ create database if not exists picture;
 use picture;
 
 -- 用户表
-create table user
+CREATE TABLE if not exists `user`
 (
-    id           bigint auto_increment primary key,
-    userAccount  varchar(256)                 not null comment '账号',
-    userPassword varchar(512)                 not null comment '密码',
-    userName     varchar(256)                 null comment '用户昵称',
-    userAvatar   varchar(1024)                null comment '用户头像',
-    userProfile  varchar(512)                 null comment '用户简介',
-    userRole     varchar(256) default 'user'  not null comment '用户角色(user/admin)',
-    editTime     datetime     default (now()) not null comment '编辑时间',
-    createTime   datetime     default (now()) not null comment '创建时间',
-    updateTime   datetime     default (now()) not null on update CURRENT_TIMESTAMP comment '更新时间',
-    isDelete     tinyint      default 0       not null comment '是否删除',
-    constraint uk_userAccount
-        unique (userAccount)
-);
+    `id`           bigint                                  NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `userAccount`  varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '账号',
+    `userPassword` varchar(512) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '密码',
+    `userName`     varchar(256) COLLATE utf8mb4_unicode_ci          DEFAULT NULL COMMENT '用户昵称',
+    `userAvatar`   varchar(1024) COLLATE utf8mb4_unicode_ci         DEFAULT NULL COMMENT '用户头像',
+    `userProfile`  varchar(512) COLLATE utf8mb4_unicode_ci          DEFAULT NULL COMMENT '用户简介',
+    `userRole`     varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'user' COMMENT '用户角色(user/admin)',
+    `editTime`     datetime                                NOT NULL DEFAULT (now()) COMMENT '编辑时间',
+    `createTime`   datetime                                NOT NULL DEFAULT (now()) COMMENT '创建时间',
+    `updateTime`   datetime                                NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `isDelete`     tinyint                                 NOT NULL DEFAULT '0' COMMENT '是否删除',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_userAccount` (`userAccount`),
+    KEY `idx_userName` (`userName`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 2016088683806998530
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
 
-create index idx_userName
-    on user (userName);
+-- 图片表
+CREATE TABLE if not exists `picture`
+(
+    `id`           bigint                                                        NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `url`          varchar(512) COLLATE utf8mb4_unicode_ci                       NOT NULL COMMENT '图片url',
+    `name`         varchar(128) COLLATE utf8mb4_unicode_ci                       NOT NULL COMMENT '图片名称',
+    `introduction` varchar(512) COLLATE utf8mb4_unicode_ci                                DEFAULT NULL COMMENT '简介',
+    `category`     varchar(64) COLLATE utf8mb4_unicode_ci                                 DEFAULT NULL COMMENT '分类',
+    `tags`         varchar(512) COLLATE utf8mb4_unicode_ci                                DEFAULT NULL COMMENT '标签(JSON数组)',
+    `picSize`      bigint                                                                 DEFAULT NULL COMMENT '图片体积',
+    `picWidth`     int                                                                    DEFAULT NULL COMMENT '图片宽度',
+    `picHeigh`     int                                                                    DEFAULT NULL COMMENT '图片高度',
+    `picScale`     double                                                                 DEFAULT NULL COMMENT '图片宽高比例',
+    `picFormat`    varchar(32) COLLATE utf8mb4_unicode_ci                                 DEFAULT NULL COMMENT '图片格式',
+    `userId`       bigint                                                        NOT NULL COMMENT '创建用户id',
+    `createTime`   datetime                                                      NOT NULL DEFAULT (now()) COMMENT '创建时间',
+    `editTime`     datetime                                                      NOT NULL DEFAULT (now()) COMMENT '编辑时间',
+    `updateTime`   datetime                                                      NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `isDelete`     varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0' COMMENT '是否删除',
+    PRIMARY KEY (`id`),
+    KEY `idx_name` (`name`),
+    KEY `idx_introduction` (`introduction`),
+    KEY `idx_category` (`category`),
+    KEY `idx_tags` (`tags`),
+    KEY `idx_userId` (`userId`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;

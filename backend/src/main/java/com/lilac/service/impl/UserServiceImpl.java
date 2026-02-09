@@ -218,9 +218,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.like(StrUtil.isNotBlank(userAccount), "userAccount", userAccount);
         queryWrapper.like(StrUtil.isNotBlank(userName), "userName", userName);
         queryWrapper.like(StrUtil.isNotBlank(userProfile), "userProfile", userProfile);
-        queryWrapper.like(StrUtil.isNotBlank(userRole), "userRole", userRole);
+        queryWrapper.eq(StrUtil.isNotBlank(userRole), "userRole", userRole);
         queryWrapper.orderBy(StrUtil.isNotBlank(sortField), sortOrder.equals("ascend"), sortField);
         return queryWrapper;
+    }
+
+    /**
+     * 判断是否为管理员
+     *
+     * @param user 用户
+     * @return 是否为管理员
+     */
+    @Override
+    public boolean isAdmin(User user) {
+        return user != null && !UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
     }
 
     /**
