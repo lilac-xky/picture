@@ -57,14 +57,27 @@ const originItems = [
         key: '/',
         icon: () => h(HomeOutlined),
         label: '主页',
+        title: '主页',
     },
     {
         key: '/admin/userManage',
         label: '用户管理',
+        title: '用户管理',
+    },
+    {
+        key: '/add_picture',
+        label: '创建图片',
+        title: '创建图片',
+    },
+    {
+        key: '/admin/pictureManage',
+        label: '图片管理',
+        title: '图片管理',
     },
     {
         key: 'others',
         label: h('a', { href: 'https://tanghc.xyz', target: '_blank' }, 'Blog'),
+        title: 'Blog',
     },
 ];
 
@@ -72,7 +85,7 @@ const originItems = [
 const filterMenus = (menus = [] as MenuProps['items']) => {
   return menus?.filter((menu) => {
     // 管理员显示所有菜单，普通用户隐藏用户管理菜单
-    if (menu?.key?.startsWith('/admin')) {
+    if (String(menu?.key).startsWith('/admin')) {
       const loginUser = loginUserStore.loginUser;
       if (!loginUser || loginUser.userRole !== 'admin') {
         return false;
@@ -117,11 +130,12 @@ const doLogout = async () => {
 .title {
     color: black;
     font-size: 18px;
-    margin-left: 5px;
+    margin-left: 12px;
+    font-weight: 600;
 }
 
 .logo {
-    height: 48px;
+    height: 44px;
     border-radius: 50%;
 }
 </style>

@@ -4,6 +4,16 @@ declare namespace API {
     id?: number
   }
 
+  type getPictureByIdParams = {
+    /** 图片id */
+    id?: number
+  }
+
+  type getPictureVOByIdParams = {
+    /** 图片id */
+    id?: number
+  }
+
   type getUserByIdParams = {
     /** 用户id */
     id?: number
@@ -40,8 +50,8 @@ declare namespace API {
     asc?: boolean
   }
 
-  type PageUserVO = {
-    records?: Record<string, any>[]
+  type PagePicture = {
+    records?: Picture[]
     total?: number
     size?: number
     current?: number
@@ -51,6 +61,169 @@ declare namespace API {
     optimizeJoinOfCountSql?: boolean
     maxLimit?: number
     countId?: string
+  }
+
+  type PagePictureVO = {
+    records?: PictureVO[]
+    total?: number
+    size?: number
+    current?: number
+    orders?: OrderItem[]
+    optimizeCountSql?: boolean
+    searchCount?: boolean
+    optimizeJoinOfCountSql?: boolean
+    maxLimit?: number
+    countId?: string
+  }
+
+  type PageUserVO = {
+    records?: UserVO[]
+    total?: number
+    size?: number
+    current?: number
+    orders?: OrderItem[]
+    optimizeCountSql?: boolean
+    searchCount?: boolean
+    optimizeJoinOfCountSql?: boolean
+    maxLimit?: number
+    countId?: string
+  }
+
+  type Picture = {
+    /** id */
+    id?: number
+    /** 图片url */
+    url?: string
+    /** 图片名称 */
+    name?: string
+    /** 简介 */
+    introduction?: string
+    /** 分类 */
+    category?: string
+    /** 标签(JSON数组) */
+    tags?: string
+    /** 图片体积 */
+    picSize?: number
+    /** 图片宽度 */
+    picWidth?: number
+    /** 图片高度 */
+    picHeigh?: number
+    /** 图片宽高比例 */
+    picScale?: number
+    /** 图片格式 */
+    picFormat?: string
+    /** 创建用户id */
+    userId?: number
+    /** 创建时间 */
+    createTime?: string
+    /** 编辑时间 */
+    editTime?: string
+    /** 更新时间 */
+    updateTime?: string
+    /** 是否删除 */
+    isDelete?: string
+  }
+
+  type PictureEditRequest = {
+    /** id */
+    id?: number
+    /** 图片名称 */
+    name?: string
+    /** 简介 */
+    introduction?: string
+    /** 分类 */
+    category?: string
+    /** 标签(JSON数组) */
+    tags?: string[]
+  }
+
+  type PictureQueryRequest = {
+    /** 当前页 */
+    current?: number
+    /** 页面大小 */
+    pageSize?: number
+    /** 排序字段 */
+    sortField?: string
+    /** 排序顺序（默认：升序） */
+    sortOrder?: string
+    /** id */
+    id?: number
+    /** 图片名称 */
+    name?: string
+    /** 简介 */
+    introduction?: string
+    /** 分类 */
+    category?: string
+    /** 标签(JSON数组) */
+    tags?: string[]
+    /** 图片体积 */
+    picSize?: number
+    /** 图片宽度 */
+    picWidth?: number
+    /** 图片高度 */
+    picHeigh?: number
+    /** 图片宽高比例 */
+    picScale?: number
+    /** 图片格式 */
+    picFormat?: string
+    /** 创建用户id */
+    userId?: number
+    /** 搜索关键词 */
+    searchText?: string
+  }
+
+  type PictureTagCategory = {
+    /** 标签列表 */
+    tagList?: string[]
+    /** 分类列表 */
+    categoryList?: string[]
+  }
+
+  type PictureUpdateRequest = {
+    /** id */
+    id?: number
+    /** 图片名称 */
+    name?: string
+    /** 简介 */
+    introduction?: string
+    /** 分类 */
+    category?: string
+    /** 标签(JSON数组) */
+    tags?: string[]
+  }
+
+  type PictureVO = {
+    /** id */
+    id?: number
+    /** 图片url */
+    url?: string
+    /** 图片名称 */
+    name?: string
+    /** 简介 */
+    introduction?: string
+    /** 分类 */
+    category?: string
+    /** 标签(JSON数组) */
+    tags?: string[]
+    /** 图片体积 */
+    picSize?: number
+    /** 图片宽度 */
+    picWidth?: number
+    /** 图片高度 */
+    picHeigh?: number
+    /** 图片宽高比例 */
+    picScale?: number
+    /** 图片格式 */
+    picFormat?: string
+    /** 创建用户id */
+    userId?: number
+    /** 创建时间 */
+    createTime?: string
+    /** 编辑时间 */
+    editTime?: string
+    /** 更新时间 */
+    updateTime?: string
+    user?: UserVO
   }
 
   type ResultBoolean = {
@@ -71,10 +244,46 @@ declare namespace API {
     data?: number
   }
 
+  type ResultPagePicture = {
+    code?: number
+    msg?: string
+    data?: PagePicture
+  }
+
+  type ResultPagePictureVO = {
+    code?: number
+    msg?: string
+    data?: PagePictureVO
+  }
+
   type ResultPageUserVO = {
     code?: number
     msg?: string
     data?: PageUserVO
+  }
+
+  type ResultPicture = {
+    code?: number
+    msg?: string
+    data?: Picture
+  }
+
+  type ResultPictureTagCategory = {
+    code?: number
+    msg?: string
+    data?: PictureTagCategory
+  }
+
+  type ResultPictureVO = {
+    code?: number
+    msg?: string
+    data?: PictureVO
+  }
+
+  type ResultString = {
+    code?: number
+    msg?: string
+    data?: string
   }
 
   type ResultUser = {
@@ -86,8 +295,12 @@ declare namespace API {
   type ResultUserVO = {
     code?: number
     msg?: string
-    /** 用户视图（脱敏） */
-    data?: Record<string, any>
+    data?: UserVO
+  }
+
+  type uploadPictureParams = {
+    /** id(用于修改) */
+    id?: number
   }
 
   type User = {

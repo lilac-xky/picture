@@ -2,7 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/Home.vue'
 import UserLogin from '@/views/user/userLogin.vue'
 import UserRegister from '@/views/user/userRegister.vue'
-import userManage from '@/views/admin/userManage.vue'
+import UserManage from '@/views/admin/userManage.vue'
+import AddPicture from '@/views/AddPicture.vue'
+import PictureManage from '@/views/admin/pictureManage.vue'
+import PictureDetail from '@/views/PictureDetail.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,7 +18,7 @@ const router = createRouter({
     {
       path: '/admin/userManage',
       name: 'userManage',
-      component: userManage,
+      component: UserManage,
     },
     {
       path: '/user/login',
@@ -27,6 +30,22 @@ const router = createRouter({
       name: 'userRegister',
       component: UserRegister,
     },
+    {
+      path: '/add_picture',
+      name: 'addPicture',
+      component: AddPicture,
+    },
+    {
+      path: '/picture/:id',
+      name: 'picture',
+      component: PictureDetail,
+      props: true,
+    },
+    {
+      path: '/admin/pictureManage',
+      name: 'pictureManage',
+      component: PictureManage,
+    }
   ],
 })
 

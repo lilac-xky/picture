@@ -147,7 +147,7 @@ public class PictureController {
      * @param pictureQueryRequest 查询参数
      * @return 图片列表
      */
-    @GetMapping("/list/page")
+    @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public Result<Page<Picture>> listPictureByPage(@RequestBody PictureQueryRequest pictureQueryRequest) {
         long current = pictureQueryRequest.getCurrent();
@@ -162,7 +162,7 @@ public class PictureController {
      * @param pictureQueryRequest 搜索参数
      * @return 图片列表
      */
-    @GetMapping("/list/page/vo")
+    @PostMapping("/list/page/vo")
     public Result<Page<PictureVO>> listPictureVOByPage(@RequestBody PictureQueryRequest pictureQueryRequest, HttpServletRequest request) {
         long current = pictureQueryRequest.getCurrent();
         long size = pictureQueryRequest.getPageSize();

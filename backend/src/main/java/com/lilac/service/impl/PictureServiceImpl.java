@@ -129,7 +129,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         queryWrapper.eq(ObjUtil.isNotEmpty(picWidth), "picWidth", picWidth);
         queryWrapper.eq(ObjUtil.isNotEmpty(picHeigh), "picHeigh", picHeigh);
         queryWrapper.eq(ObjUtil.isNotEmpty(picScale), "picScale", picScale);
-        if(CollUtil.isEmpty(tags)){
+        if(CollUtil.isNotEmpty(tags)){
             for (String tag : tags) {
                 queryWrapper.like("tags", "\"" + tag + "\"");
             }
