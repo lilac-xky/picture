@@ -9,8 +9,10 @@ import com.lilac.domain.dto.picture.*;
 import com.lilac.domain.entity.Picture;
 import com.lilac.domain.entity.User;
 import com.lilac.domain.result.Result;
+import com.lilac.domain.vo.PictureTagCategory;
 import com.lilac.domain.vo.PictureVO;
 import com.lilac.enums.HttpsCodeEnum;
+import com.lilac.enums.PictureReviewStatusEnum;
 import com.lilac.exception.BusinessException;
 import com.lilac.service.PictureService;
 import com.lilac.service.UserService;
@@ -22,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -50,7 +51,7 @@ public class PictureController {
      * @return 上传结果
      */
     @PostMapping("/upload")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+//    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public Result<PictureVO> uploadPicture(@RequestPart("file") MultipartFile multipartFile,
                                            PictureUploadRequest pictureUploadRequest, HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
@@ -92,11 +93,10 @@ public class PictureController {
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public Result<Boolean> updatePicture(@RequestBody PictureUpdateRequest pictureUpdateRequest) {
+    public Result<Boolean> updatePicture(@RequestBody PictureUpdateRequest pictureUpdateRequest, HttpServletRequest request) {
         if(pictureUpdateRequest == null || pictureUpdateRequest.getId() <= 0){
             throw new BusinessException(HttpsCodeEnum.PARAMS_ERROR);
         }
-        // 获取当前用户
         Picture picture = new Picture();
         BeanUtils.copyProperties(pictureUpdateRequest, picture);
         picture.setTags(JSONUtil.toJsonStr(pictureUpdateRequest.getTags()));
@@ -106,6 +106,9 @@ public class PictureController {
         long id = pictureUpdateRequest.getId();
         Picture oldPicture = pictureService.getById(id);
         ThrowUtils.throwIf(oldPicture == null, HttpsCodeEnum.NOT_FOUND_ERROR);
+        // 审核
+        User loginUser = userService.getLoginUser(request);
+        pictureService.fillReviewParams(picture, loginUser);
         // 更新
         boolean result = pictureService.updateById(picture);
         ThrowUtils.throwIf(!result, HttpsCodeEnum.OPERATION_ERROR);
@@ -168,6 +171,8 @@ public class PictureController {
         long size = pictureQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, HttpsCodeEnum.PARAMS_ERROR);
+        // 非管理员只返回审核通过的图片
+        pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
         Page<Picture> picturePage = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
         return Result.success(pictureService.getPictureVOPage(picturePage, request));
     }
@@ -192,6 +197,7 @@ public class PictureController {
         pictureService.validPicture(picture);
         // 获取当前用户
         User loginUser = userService.getLoginUser(request);
+        pictureService.fillReviewParams(picture, loginUser);
         long id = pictureEditRequest.getId();
         Picture oldPicture = pictureService.getById(id);
         ThrowUtils.throwIf(oldPicture == null, HttpsCodeEnum.NOT_FOUND_ERROR);
@@ -213,10 +219,25 @@ public class PictureController {
     public Result<PictureTagCategory> listPictureTagCategory() {
         // todo 简约版本，后续有需求在完善
         PictureTagCategory pictureTagCategory = new PictureTagCategory();
-        List<String> tagList = Arrays.asList("热门","搞笑","高清","创意","校园","简约");
+        List<String> tagList = Arrays.asList("可爱","漂亮","高清","美女","校园","简约");
         List<String> categoryList = Arrays.asList("动漫","素材","卡通","校园","简约");
         pictureTagCategory.setTagList(tagList);
         pictureTagCategory.setCategoryList(categoryList);
         return Result.success(pictureTagCategory);
+    }
+
+    /**
+     * 图片审核
+     *
+     * @param pictureReviewRequest 审核参数
+     * @return 审核结果
+     */
+    @PostMapping("/review")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public Result<Boolean> doPictureReview(@RequestBody PictureReviewRequest pictureReviewRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(pictureReviewRequest == null, HttpsCodeEnum.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        pictureService.doPictureReview(pictureReviewRequest, loginUser);
+        return Result.success(true);
     }
 }

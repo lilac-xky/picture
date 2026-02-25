@@ -1,4 +1,4 @@
-package com.lilac.domain.dto.picture;
+package com.lilac.domain.vo;
 
 import lombok.Data;
 

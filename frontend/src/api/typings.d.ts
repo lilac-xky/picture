@@ -114,6 +114,14 @@ declare namespace API {
     picFormat?: string
     /** 创建用户id */
     userId?: number
+    /** 审核状态：0-待审核; 1-通过; 2-拒绝 */
+    reviewStatus?: number
+    /** 审核信息 */
+    reviewMessage?: string
+    /** 审核人id */
+    reviewerId?: number
+    /** 审核时间 */
+    reviewTime?: string
     /** 创建时间 */
     createTime?: string
     /** 编辑时间 */
@@ -168,8 +176,25 @@ declare namespace API {
     picFormat?: string
     /** 创建用户id */
     userId?: number
+    /** 审核状态：0-待审核; 1-通过; 2-拒绝 */
+    reviewStatus?: number
+    /** 审核信息 */
+    reviewMessage?: string
+    /** 审核人id */
+    reviewerId?: number
+    /** 审核时间 */
+    reviewTime?: string
     /** 搜索关键词 */
     searchText?: string
+  }
+
+  type PictureReviewRequest = {
+    /** id */
+    id?: number
+    /** 审核状态：0-待审核; 1-通过; 2-拒绝 */
+    reviewStatus?: number
+    /** 审核信息 */
+    reviewMessage?: string
   }
 
   type PictureTagCategory = {
@@ -223,6 +248,7 @@ declare namespace API {
     editTime?: string
     /** 更新时间 */
     updateTime?: string
+    /** 创建用户信息 */
     user?: UserVO
   }
 
@@ -277,13 +303,8 @@ declare namespace API {
   type ResultPictureVO = {
     code?: number
     msg?: string
+    /** 图片VO */
     data?: PictureVO
-  }
-
-  type ResultString = {
-    code?: number
-    msg?: string
-    data?: string
   }
 
   type ResultUser = {
@@ -295,6 +316,7 @@ declare namespace API {
   type ResultUserVO = {
     code?: number
     msg?: string
+    /** 创建用户信息 */
     data?: UserVO
   }
 

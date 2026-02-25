@@ -1,3 +1,37 @@
+server:
+  port: 9090
+  servlet:
+    context-path: /api
+
 spring:
   profiles:
     active: dev
+  application:
+    name: picture
+  datasource:
+    driver-class-name: ${picture.datasource.driver-class-name}
+    url: ${picture.datasource.url}
+    username: ${picture.datasource.username}
+    password: ${picture.datasource.password}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: false
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: isDelete
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+cos:
+  client:
+    host: ${picture.cos.client.host}
+    secretId: ${picture.cos.client.secretId}
+    secretKey: ${picture.cos.client.secretKey}
+    region: ${picture.cos.client.region}
+    bucket: ${picture.cos.client.bucket}

@@ -46,10 +46,10 @@ public class FileManager {
         // 生成文件名
         String uuid = RandomUtil.randomString(16);
         String originalFilename = multipartFile.getOriginalFilename();
-        String uploadFilename = String.format("%s_%s.%s", DateUtil.formatDate(new Date()), uuid, FileUtil.getSuffix(originalFilename));
+        String uploadFilename = String.format("%s.%s", uuid, FileUtil.getSuffix(originalFilename));
         // 构建上传路径
         String projectName = "lilac-picture";
-        String uploadPath = String.format(projectName + "/%s/%s", uploadPathPrefix, uploadFilename);
+        String uploadPath = String.format(projectName + "/%s/%s/%s", uploadPathPrefix, DateUtil.format(new Date(),"yyyy/MM"), uploadFilename);
         // 解析结果并返回
         File file = null;
         try {
