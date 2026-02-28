@@ -21,12 +21,14 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 文件服务
+ * 文件管理器
  *
  * @author lilac
+ * @deprecated 弃用，请使用upload包的模板优化
  */
 @Slf4j
 @Service
+@Deprecated
 public class FileManager {
     @Resource
     private CosClientConfig cosClientConfig;

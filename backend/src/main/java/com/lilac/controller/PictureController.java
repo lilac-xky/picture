@@ -60,6 +60,21 @@ public class PictureController {
     }
 
     /**
+     * 上传图片
+     *
+     * @param pictureUploadRequest 上传参数
+     * @param request              请求
+     * @return 上传结果
+     */
+    @PostMapping("/upload/url")
+    public Result<PictureVO> uploadPictureByUrl(@RequestBody PictureUploadRequest pictureUploadRequest, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        String fileUrl = pictureUploadRequest.getFileUrl();
+        PictureVO pictureVO = pictureService.uploadPicture(fileUrl, pictureUploadRequest, loginUser);
+        return Result.success(pictureVO);
+    }
+
+    /**
      * 删除图片
      *
      * @param deleteRequest 删除参数

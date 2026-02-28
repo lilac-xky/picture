@@ -217,6 +217,13 @@ declare namespace API {
     tags?: string[]
   }
 
+  type PictureUploadRequest = {
+    /** id(用于修改) */
+    id?: number
+    /** 图片url */
+    fileUrl?: string
+  }
+
   type PictureVO = {
     /** id */
     id?: number
@@ -323,6 +330,8 @@ declare namespace API {
   type uploadPictureParams = {
     /** id(用于修改) */
     id?: number
+    /** 图片url */
+    fileUrl?: string
   }
 
   type User = {

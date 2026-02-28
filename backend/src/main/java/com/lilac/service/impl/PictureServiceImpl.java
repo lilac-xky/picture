@@ -18,6 +18,9 @@ import com.lilac.enums.HttpsCodeEnum;
 import com.lilac.enums.PictureReviewStatusEnum;
 import com.lilac.exception.BusinessException;
 import com.lilac.manager.FileManager;
+import com.lilac.manager.upload.FilePictureUpload;
+import com.lilac.manager.upload.PictureUploadTemplate;
+import com.lilac.manager.upload.UrlPictureUpload;
 import com.lilac.mapper.PictureMapper;
 import com.lilac.service.PictureService;
 import com.lilac.service.UserService;
@@ -43,19 +46,21 @@ import java.util.stream.Collectors;
 public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> implements PictureService {
 
     @Resource
-    private FileManager fileManager;
-    @Autowired
     private UserService userService;
+    @Resource
+    private FilePictureUpload filePictureUpload;
+    @Resource
+    private UrlPictureUpload urlPictureUpload;
 
     /**
      * 上传图片
-     * @param multipartFile 文件
-     * @param pictureUploadRequest 上传参数
+     * @param inputSource 图片源
+     * @param pictureUploadRequest 图片上传参数
      * @param loginUser 登录用户
-     * @return 上传结果
+     * @return 图片信息
      */
     @Override
-    public PictureVO uploadPicture(MultipartFile multipartFile, PictureUploadRequest pictureUploadRequest, User loginUser) {
+    public PictureVO uploadPicture(Object inputSource, PictureUploadRequest pictureUploadRequest, User loginUser) {
         // 检验参数
         ThrowUtils.throwIf(loginUser == null, HttpsCodeEnum.UNAUTHORIZED);
         // 判断是新增还是删除
@@ -74,7 +79,9 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         }
         // 上传图片，得到图片信息
         String uploadPathPrefix = String.format("public/%s", loginUser.getId());
-        UploadPictureResult uploadPictureResult = fileManager.uploadPicture(multipartFile, uploadPathPrefix);
+        // 根据inputSource类型，选择上传方式
+        PictureUploadTemplate pictureUploadTemplate = inputSource instanceof MultipartFile ? filePictureUpload : urlPictureUpload;
+        UploadPictureResult uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, uploadPathPrefix);
         // 构造信息
         Picture picture = new Picture();
         picture.setUrl(uploadPictureResult.getUrl());
