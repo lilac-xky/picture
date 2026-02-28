@@ -255,4 +255,18 @@ public class PictureController {
         pictureService.doPictureReview(pictureReviewRequest, loginUser);
         return Result.success(true);
     }
+
+    /**
+     * 图片批量上传
+     *
+     * @param pictureUploadByBatchRequest 图片上传参数
+     * @return 上传结果
+     */
+    @PostMapping("/upload/batch")
+    public Result<Integer> uploadPictureByBatch(@RequestBody PictureUploadByBatchRequest pictureUploadByBatchRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(pictureUploadByBatchRequest == null, HttpsCodeEnum.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        int uploadCount = pictureService.uploadPictureByBatch(pictureUploadByBatchRequest, loginUser);
+        return Result.success(uploadCount);
+    }
 }

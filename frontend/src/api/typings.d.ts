@@ -217,11 +217,22 @@ declare namespace API {
     tags?: string[]
   }
 
+  type PictureUploadByBatchRequest = {
+    /** 搜索词 */
+    searchText?: string
+    /** 文件名前缀 */
+    namePrefix?: string
+    /** 抓取数量 */
+    count?: number
+  }
+
   type PictureUploadRequest = {
     /** id(用于修改) */
     id?: number
     /** 图片url */
     fileUrl?: string
+    /** 图片名称 */
+    picName?: string
   }
 
   type PictureVO = {
@@ -263,6 +274,12 @@ declare namespace API {
     code?: number
     msg?: string
     data?: boolean
+  }
+
+  type ResultInteger = {
+    code?: number
+    msg?: string
+    data?: number
   }
 
   type ResultLoginUserVO = {

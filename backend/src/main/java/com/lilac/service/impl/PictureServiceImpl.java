@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lilac.domain.dto.file.UploadPictureResult;
 import com.lilac.domain.dto.picture.PictureQueryRequest;
 import com.lilac.domain.dto.picture.PictureReviewRequest;
+import com.lilac.domain.dto.picture.PictureUploadByBatchRequest;
 import com.lilac.domain.dto.picture.PictureUploadRequest;
 import com.lilac.domain.entity.Picture;
 import com.lilac.domain.entity.User;
@@ -17,7 +18,6 @@ import com.lilac.domain.vo.UserVO;
 import com.lilac.enums.HttpsCodeEnum;
 import com.lilac.enums.PictureReviewStatusEnum;
 import com.lilac.exception.BusinessException;
-import com.lilac.manager.FileManager;
 import com.lilac.manager.upload.FilePictureUpload;
 import com.lilac.manager.upload.PictureUploadTemplate;
 import com.lilac.manager.upload.UrlPictureUpload;
@@ -27,11 +27,16 @@ import com.lilac.service.UserService;
 import com.lilac.utils.ThrowUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +48,7 @@ import java.util.stream.Collectors;
  * @author lilac
  */
 @Service
+@Slf4j
 public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> implements PictureService {
 
     @Resource
@@ -85,7 +91,12 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         // 构造信息
         Picture picture = new Picture();
         picture.setUrl(uploadPictureResult.getUrl());
-        picture.setName(uploadPictureResult.getPickName());
+        // 获取图片名
+        String picName = uploadPictureResult.getPickName();
+        if (pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getPicName())){
+            picName = pictureUploadRequest.getPicName();
+        }
+        picture.setName(picName);
         picture.setPicSize(uploadPictureResult.getPicSize());
         picture.setPicWidth(uploadPictureResult.getPicWidth());
         picture.setPicHeigh(uploadPictureResult.getPicHeigh());
@@ -277,5 +288,68 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             // 非管理员审核
             picture.setReviewStatus(PictureReviewStatusEnum.REVIEWING.getValue());
         }
+    }
+
+    /**
+     * 上传图片批量
+     *
+     * @param pictureUploadByBatchRequest 图片上传参数
+     * @param loginUser                   登录用户
+     * @return 图片数量
+     */
+    @Override
+    public Integer uploadPictureByBatch(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser) {
+        // 检验参数
+        String searchText = pictureUploadByBatchRequest.getSearchText();
+        Integer count = pictureUploadByBatchRequest.getCount();
+        ThrowUtils.throwIf(count > 30, HttpsCodeEnum.PARAMS_ERROR, "数量不能超过30");
+        String namePrefix = pictureUploadByBatchRequest.getNamePrefix();
+        if(StrUtil.isBlank(namePrefix)){
+            namePrefix = searchText;
+        }
+        // 抓取内容
+        String fetchUrl = String.format("https://cn.bing.com/images/search?q=%s&count=%s", searchText, count);
+        Document document = null;
+        try {
+            document = Jsoup.connect(fetchUrl).get();
+        } catch (IOException e) {
+            log.error("抓取内容失败", e);
+            throw new BusinessException(HttpsCodeEnum.OPERATION_ERROR, "抓取内容失败");
+        }
+        // 解析内容
+        Element div = document.getElementsByClass("dgControl").first();
+        if(ObjUtil.isEmpty(div)){
+            throw new BusinessException(HttpsCodeEnum.OPERATION_ERROR, "解析内容失败");
+        }
+        Elements isElementList = div.select("img.mimg");
+        int uploadCount = 0;
+        for (Element imgElement : isElementList) {
+            String fileUrl = imgElement.attr("src");
+            if(StrUtil.isBlank(fileUrl)){
+                log.info("图片地址为空，已跳过：{}",fileUrl);
+                continue;
+            }
+            // 处理图片地址，防止转义或对象存储冲突问题
+            int index = fileUrl.indexOf("?");
+            if(index > -1){
+                fileUrl = fileUrl.substring(0, index);
+            }
+            // 上传图片
+            PictureUploadRequest pictureUploadRequest = new PictureUploadRequest();
+            pictureUploadRequest.setFileUrl(fileUrl);
+            pictureUploadRequest.setPicName(namePrefix + (uploadCount + 1));
+            try {
+                PictureVO pictureVO = this.uploadPicture(fileUrl, pictureUploadRequest, loginUser);
+                log.info("上传图片成功,id：{}",pictureVO.getId());
+                uploadCount++;
+            } catch (Exception e) {
+                log.error("上传图片失败", e);
+                continue;
+            }
+            if (uploadCount >= count) {
+                break;
+            }
+        }
+        return uploadCount;
     }
 }
