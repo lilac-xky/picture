@@ -18,6 +18,7 @@ import com.lilac.domain.vo.UserVO;
 import com.lilac.enums.HttpsCodeEnum;
 import com.lilac.enums.PictureReviewStatusEnum;
 import com.lilac.exception.BusinessException;
+import com.lilac.manager.CosManager;
 import com.lilac.manager.upload.FilePictureUpload;
 import com.lilac.manager.upload.PictureUploadTemplate;
 import com.lilac.manager.upload.UrlPictureUpload;
@@ -33,6 +34,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -57,6 +60,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     private FilePictureUpload filePictureUpload;
     @Resource
     private UrlPictureUpload urlPictureUpload;
+    @Autowired
+    private CosManager cosManager;
 
     /**
      * 上传图片
@@ -91,6 +96,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         // 构造信息
         Picture picture = new Picture();
         picture.setUrl(uploadPictureResult.getUrl());
+        picture.setThumbnailUrl(uploadPictureResult.getThumbnailUrl());
         // 获取图片名
         String picName = uploadPictureResult.getPickName();
         if (pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getPicName())){
@@ -351,5 +357,26 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             }
         }
         return uploadCount;
+    }
+
+    /**
+     * 清理图片文件
+     * @param picture 图片
+     */
+//    @Async
+    @Override
+    public void clearPictureFile(Picture picture) {
+        String picUrl = picture.getUrl();
+        // 图片被其他图片引用，不删除
+        long count = this.lambdaQuery().eq(Picture::getUrl, picUrl).count();
+        if(count > 1){
+            return;
+        }
+        cosManager.deleteObject(picUrl);
+        // 删除缩略图
+        String picThumbnailUrl = picture.getThumbnailUrl();
+        if(StrUtil.isNotBlank(picThumbnailUrl)){
+            cosManager.deleteObject(picThumbnailUrl);
+        }
     }
 }

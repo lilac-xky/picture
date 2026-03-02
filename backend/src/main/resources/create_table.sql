@@ -55,3 +55,6 @@ CREATE TABLE `picture` (
     KEY `idx_userId` (`userId`),
     KEY `idx_reviewStatus` (`reviewStatus`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2021870572882911235 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE picture
+    ADD COLUMN thumbnailUrl varchar(512) NULL COMMENT '缩略图 url';

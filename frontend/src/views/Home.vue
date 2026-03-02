@@ -3,7 +3,7 @@
     <!-- 搜索框 -->
     <div class="search-bar">
       <a-input-search v-model:value="searchParams.searchText" placeholder="海量图片搜索" enterButton="搜索" size="large"
-        @search="doSearch" />
+        @search="doSearch" allow-clear />
     </div>
 
     <!-- 分类和标签 -->
@@ -29,7 +29,7 @@
           <!-- 单张图片 -->
           <a-card hoverable @click="doClickPickture(picture)">
             <template #cover>
-              <img :alt="picture.name" :src="picture.url" style="height: 180px;object-fit: cover;" />
+              <img :alt="picture.name" :src="picture.thumbnailUrl ?? picture.url" style="height: 180px;object-fit: cover;" />
             </template>
             <a-card-meta :title="picture.name">
               <template #description>

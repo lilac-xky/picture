@@ -25,12 +25,13 @@
             <result property="editTime" column="editTime" />
             <result property="updateTime" column="updateTime" />
             <result property="isDelete" column="isDelete" />
+            <result property="thumbnailUrl" column="thumbnailUrl" />
     </resultMap>
 
     <sql id="Base_Column_List">
         id,url,name,introduction,category,tags,
         picSize,picWidth,picHeigh,picScale,picFormat,
         userId,reviewStatus,reviewMessage,reviewerId,reviewTime,
-        createTime,editTime,updateTime,isDelete
+        createTime,editTime,updateTime,isDelete,thumbnailUrl
     </sql>
 </mapper>

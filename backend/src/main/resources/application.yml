@@ -2,6 +2,9 @@ server:
   port: 9090
   servlet:
     context-path: /api
+    session:
+      cookie:
+        max-age: 2592000
 
 spring:
   profiles:
@@ -16,6 +19,16 @@ spring:
   servlet:
     multipart:
       max-file-size: 10MB
+  data:
+    redis:
+      host: ${picture.redis.host}
+      port: ${picture.redis.port}
+      password: ${picture.redis.password}
+      database: ${picture.redis.database}
+      timeout: 5000
+  session:
+    store-type: redis
+    timeout: 2592000
 
 mybatis-plus:
   configuration:

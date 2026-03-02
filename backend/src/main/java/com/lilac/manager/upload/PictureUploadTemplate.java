@@ -1,5 +1,6 @@
 package com.lilac.manager.upload;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.NumberUtil;
@@ -10,13 +11,16 @@ import com.lilac.enums.HttpsCodeEnum;
 import com.lilac.exception.BusinessException;
 import com.lilac.manager.CosManager;
 import com.qcloud.cos.model.PutObjectResult;
+import com.qcloud.cos.model.ciModel.persistence.CIObject;
 import com.qcloud.cos.model.ciModel.persistence.ImageInfo;
+import com.qcloud.cos.model.ciModel.persistence.ProcessResults;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 文件管理模板
@@ -43,7 +47,7 @@ public abstract class PictureUploadTemplate {
         // 生成文件名
         String uuid = RandomUtil.randomString(16);
         String originalFilename = getOriginalFilename(inputSource);
-        String uploadFilename = String.format("%s.%s", uuid, FileUtil.getSuffix(originalFilename));
+        String uploadFilename = String.format("%s%s.%s", DateUtil.formatDate(new Date()),uuid, FileUtil.getSuffix(originalFilename));
         // 构建上传路径
         String projectName = "lilac-picture";
         String uploadPath = String.format(projectName + "/%s/%s/%s", uploadPathPrefix, DateUtil.format(new Date(),"yyyy/MM"), uploadFilename);
@@ -57,6 +61,18 @@ public abstract class PictureUploadTemplate {
             PutObjectResult putObjectResult = cosManager.putPictureObject(uploadPath, file);
             // 获取图片信息
             ImageInfo imageInfo = putObjectResult.getCiUploadResult().getOriginalInfo().getImageInfo();
+            // 获取到图片处理结果
+            ProcessResults processResults = putObjectResult.getCiUploadResult().getProcessResults();
+            List<CIObject> objectList = processResults.getObjectList();
+            if(CollUtil.isNotEmpty(objectList)){
+                CIObject compressedCiObject = objectList.get(0);
+                // 缩略图默认为压缩图像，仅仅当有缩略图时才会返回缩略图
+                CIObject thumbnailCiObject = compressedCiObject;
+                if(objectList.size() > 1){
+                    thumbnailCiObject = objectList.get(1);
+                }
+                return buildResult(originalFilename, compressedCiObject, thumbnailCiObject);
+            }
             return buildResult(imageInfo, uploadPath, originalFilename, file);
         } catch (Exception e) {
             log.error("图片上传到对象存储失败", e);
@@ -112,6 +128,33 @@ public abstract class PictureUploadTemplate {
         uploadPictureResult.setPicHeigh(picHeight);
         uploadPictureResult.setPicScale(picScale);
         uploadPictureResult.setPicFormat(imageInfo.getFormat());
+        return uploadPictureResult;
+    }
+
+    /**
+     * 构建上传结果
+     *
+     * @param originalFilename 原始文件名
+     * @param compressedCiObject 压缩图片对象
+     * @param thumbnailCiObject 缩略图对象
+     * @return 上传结果
+     */
+    private UploadPictureResult buildResult(String originalFilename, CIObject compressedCiObject, CIObject thumbnailCiObject) {
+        // 计算宽高比
+        int picWidth = compressedCiObject.getWidth();
+        int picHeight = compressedCiObject.getHeight();
+        double picScale = NumberUtil.round(picWidth * 1.0 / picHeight, 2).doubleValue();
+        // 设置压缩后原图地址
+        UploadPictureResult uploadPictureResult = new UploadPictureResult();
+        uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + compressedCiObject.getKey());
+        uploadPictureResult.setPickName(FileUtil.mainName(originalFilename));
+        uploadPictureResult.setPicSize(compressedCiObject.getSize().longValue());
+        uploadPictureResult.setPicWidth(picWidth);
+        uploadPictureResult.setPicHeigh(picHeight);
+        uploadPictureResult.setPicScale(picScale);
+        uploadPictureResult.setPicFormat(compressedCiObject.getFormat());
+        // 设置缩略图地址
+        uploadPictureResult.setThumbnailUrl(cosClientConfig.getHost() + "/" + thumbnailCiObject.getKey());
         return uploadPictureResult;
     }
 

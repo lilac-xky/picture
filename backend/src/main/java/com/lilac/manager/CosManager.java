@@ -1,5 +1,6 @@
 package com.lilac.manager;
 
+import cn.hutool.core.io.FileUtil;
 import com.lilac.config.CosClientConfig;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.model.COSObject;
@@ -11,6 +12,8 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 腾讯云对象存储服务
@@ -59,9 +62,37 @@ public class CosManager {
         PicOperations picOperations = new PicOperations();
         // 返回原图信息
         picOperations.setIsPicInfo(1);
+        // 添加图片处理参数
+        List<PicOperations.Rule> rules = new ArrayList<>();
+        // 压缩图片
+        String webpkey = FileUtil.mainName(key) + ".webp";
+        PicOperations.Rule compressRule = new PicOperations.Rule();
+        compressRule.setBucket(cosClientConfig.getBucket());
+        compressRule.setFileId(webpkey);
+        compressRule.setRule("imageMogr2/format/webp");
+        rules.add(compressRule);
+        // 缩略图处理,仅对>20kb的图片生效
+        if(FileUtil.size(file) > 20 * 1024){
+            PicOperations.Rule thumbnailRule = new PicOperations.Rule();
+            String thumbnailkey = FileUtil.mainName(key) + "_thumbnail." + FileUtil.getSuffix(key);
+            thumbnailRule.setBucket(cosClientConfig.getBucket());
+            thumbnailRule.setFileId(thumbnailkey);
+            thumbnailRule.setRule(String.format("imageMogr2/thumbnail/%sx%s>", 256, 256));
+            rules.add(thumbnailRule);
+        }
         // 设置图片处理参数
+        picOperations.setRules(rules);
         putObjectRequest.setPicOperations(picOperations);
         return cosClient.putObject(putObjectRequest);
+    }
+
+    /**
+     * 删除对象
+     *
+     * @param key 文件名
+     */
+    public void deleteObject(String key) {
+       cosClient.deleteObject(cosClientConfig.getBucket(), key);
     }
 
 }
