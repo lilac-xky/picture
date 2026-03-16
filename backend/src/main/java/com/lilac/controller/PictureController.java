@@ -10,6 +10,7 @@ import com.lilac.common.DeleteRequest;
 import com.lilac.constant.UserConstant;
 import com.lilac.domain.dto.picture.*;
 import com.lilac.domain.entity.Picture;
+import com.lilac.domain.entity.Space;
 import com.lilac.domain.entity.User;
 import com.lilac.domain.result.Result;
 import com.lilac.domain.vo.PictureTagCategory;
@@ -18,12 +19,12 @@ import com.lilac.enums.HttpsCodeEnum;
 import com.lilac.enums.PictureReviewStatusEnum;
 import com.lilac.exception.BusinessException;
 import com.lilac.service.PictureService;
+import com.lilac.service.SpaceService;
 import com.lilac.service.UserService;
 import com.lilac.utils.ThrowUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.DigestUtils;
@@ -47,10 +48,12 @@ public class PictureController {
 
     @Resource
     private UserService userService;
-    @Autowired
+    @Resource
     private PictureService pictureService;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private SpaceService spaceService;
 
     /**
      * 本地缓存
@@ -100,28 +103,17 @@ public class PictureController {
      * @return 删除结果
      */
     @PostMapping("/delete")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public Result<Boolean> deletePicture(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if(deleteRequest == null || deleteRequest.getId() <= 0){
             throw new BusinessException(HttpsCodeEnum.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
-        Long id = deleteRequest.getId();
-        Picture oldPicture = pictureService.getById(id);
-        ThrowUtils.throwIf(oldPicture == null, HttpsCodeEnum.NOT_FOUND_ERROR);
-        // 仅本人和管理员可删除
-        if(!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)){
-            throw new BusinessException(HttpsCodeEnum.UNAUTHORIZED);
-        }
-        // 删除
-        boolean result = pictureService.removeById(id);
-        ThrowUtils.throwIf(!result, HttpsCodeEnum.OPERATION_ERROR);
-        pictureService.clearPictureFile(oldPicture);
+        pictureService.deletePicture(deleteRequest.getId(), loginUser);
         return Result.success(true);
     }
 
     /**
-     * 更新图片
+     * 更新图片(管理员)
      *
      * @param pictureUpdateRequest 更新参数
      * @return 更新结果
@@ -176,6 +168,12 @@ public class PictureController {
         ThrowUtils.throwIf(id <= 0, HttpsCodeEnum.PARAMS_ERROR);
         Picture picture = pictureService.getById(id);
         ThrowUtils.throwIf(picture == null, HttpsCodeEnum.NOT_FOUND_ERROR);
+        // 空间权限校验
+        Long spaceId = picture.getSpaceId();
+        if(spaceId != null){
+            User loginUser = userService.getLoginUser(request);
+            pictureService.checkPictureAuth(loginUser, picture);
+        }
         return Result.success(pictureService.getPictureVO(picture, request));
     }
 
@@ -206,8 +204,21 @@ public class PictureController {
         long size = pictureQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, HttpsCodeEnum.PARAMS_ERROR);
-        // 非管理员只返回审核通过的图片
-        pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
+        // 空间权限校验
+        Long spaceId = pictureQueryRequest.getSpaceId();
+        if(spaceId == null) {
+            // 公有图库，非管理员只返回审核通过的图片
+            pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
+            pictureQueryRequest.setNullSpaceId(true);
+        }else {
+            // 私有空间
+            User loginUser = userService.getLoginUser(request);
+            Space space = spaceService.getById(spaceId);
+            ThrowUtils.throwIf(space == null, HttpsCodeEnum.NOT_FOUND_ERROR, "空间不存在");
+            if(!loginUser.getId().equals(space.getUserId())){
+                throw new BusinessException(HttpsCodeEnum.UNAUTHORIZED, "无权限访问该空间");
+            }
+        }
         Page<Picture> picturePage = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
         return Result.success(pictureService.getPictureVOPage(picturePage, request));
     }
@@ -218,6 +229,7 @@ public class PictureController {
      * @param pictureQueryRequest 搜索参数
      * @return 图片列表
      */
+    @Deprecated
     @PostMapping("/list/page/vo/catch")
     public Result<Page<PictureVO>> listPictureVOByPageWithCache(@RequestBody PictureQueryRequest pictureQueryRequest, HttpServletRequest request) {
         long current = pictureQueryRequest.getCurrent();
@@ -269,25 +281,8 @@ public class PictureController {
         if(pictureEditRequest == null || pictureEditRequest.getId() <= 0){
             throw new BusinessException(HttpsCodeEnum.PARAMS_ERROR);
         }
-        // 转换
-        Picture picture = new Picture();
-        BeanUtils.copyProperties(pictureEditRequest, picture);
-        picture.setTags(JSONUtil.toJsonStr(pictureEditRequest.getTags()));
-        picture.setEditTime(new Date());
-        // 校验
-        pictureService.validPicture(picture);
-        // 获取当前用户
         User loginUser = userService.getLoginUser(request);
-        pictureService.fillReviewParams(picture, loginUser);
-        long id = pictureEditRequest.getId();
-        Picture oldPicture = pictureService.getById(id);
-        ThrowUtils.throwIf(oldPicture == null, HttpsCodeEnum.NOT_FOUND_ERROR);
-        // 仅本人和管理员可编辑
-        if(!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)){
-            throw new BusinessException(HttpsCodeEnum.UNAUTHORIZED);
-        }
-        boolean result = pictureService.updateById(picture);
-        ThrowUtils.throwIf(!result, HttpsCodeEnum.OPERATION_ERROR);
+        pictureService.editPicture(pictureEditRequest, loginUser);
         return Result.success(true);
     }
 
@@ -308,7 +303,7 @@ public class PictureController {
     }
 
     /**
-     * 图片审核
+     * 图片审核(管理员)
      *
      * @param pictureReviewRequest 审核参数
      * @return 审核结果

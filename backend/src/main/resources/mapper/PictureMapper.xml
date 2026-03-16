@@ -7,6 +7,7 @@
     <resultMap id="BaseResultMap" type="com.lilac.domain.entity.Picture">
             <id property="id" column="id" />
             <result property="url" column="url" />
+        <result property="thumbnailUrl" column="thumbnailUrl"/>
             <result property="name" column="name" />
             <result property="introduction" column="introduction" />
             <result property="category" column="category" />
@@ -25,13 +26,14 @@
             <result property="editTime" column="editTime" />
             <result property="updateTime" column="updateTime" />
             <result property="isDelete" column="isDelete" />
-            <result property="thumbnailUrl" column="thumbnailUrl" />
+        <result property="spaceId" column="spaceId"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,url,name,introduction,category,tags,
-        picSize,picWidth,picHeigh,picScale,picFormat,
-        userId,reviewStatus,reviewMessage,reviewerId,reviewTime,
-        createTime,editTime,updateTime,isDelete,thumbnailUrl
+        id,url,thumbnailUrl,name,introduction,category,
+        tags,picSize,picWidth,picHeigh,picScale,
+        picFormat,userId,reviewStatus,reviewMessage,reviewerId,
+        reviewTime,createTime,editTime,updateTime,isDelete,
+        spaceId
     </sql>
 </mapper>

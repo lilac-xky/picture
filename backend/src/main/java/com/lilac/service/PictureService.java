@@ -3,15 +3,11 @@ package com.lilac.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.lilac.domain.dto.picture.PictureQueryRequest;
-import com.lilac.domain.dto.picture.PictureReviewRequest;
-import com.lilac.domain.dto.picture.PictureUploadByBatchRequest;
-import com.lilac.domain.dto.picture.PictureUploadRequest;
+import com.lilac.domain.dto.picture.*;
 import com.lilac.domain.entity.Picture;
 import com.lilac.domain.entity.User;
 import com.lilac.domain.vo.PictureVO;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 图片服务
@@ -94,4 +90,28 @@ public interface PictureService extends IService<Picture> {
      * @param picture 图片
      */
     void clearPictureFile(Picture picture);
+
+    /**
+     * 检查图片权限
+     *
+     * @param loginUser 登录用户
+     * @param picture 图片
+     */
+    void checkPictureAuth(User loginUser, Picture picture);
+
+    /**
+     * 删除图片
+     *
+     * @param pictureId 图片id
+     * @param loginUser 登录用户
+     */
+    void deletePicture(long pictureId,User loginUser);
+
+    /**
+     * 编辑图片
+     *
+     * @param pictureEditRequest 图片编辑参数
+     * @param loginUser 登录用户
+     */
+    void editPicture(PictureEditRequest pictureEditRequest, User loginUser);
 }
