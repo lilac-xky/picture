@@ -9,8 +9,8 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.lilac</groupId>
-    <artifactId>backend</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>picture</artifactId>
+    <version>0.1-SNAPSHOT</version>
     <name>pitcure</name>
 
     <properties>

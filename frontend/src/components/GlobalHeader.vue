@@ -75,6 +75,11 @@ const originItems = [
         title: '图片管理',
     },
     {
+        key: '/add_space',
+        label: '创建空间',
+        title: '创建空间',
+    },
+    {
         key: '/admin/spaceManage',
         label: '空间管理',
         title: '空间管理',

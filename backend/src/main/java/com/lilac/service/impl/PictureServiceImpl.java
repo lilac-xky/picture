@@ -165,7 +165,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
                         .setSql("totalSize = totalSize + " + picture.getPicSize())
                         .setSql("totalCount = totalCount + 1")
                         .update();
-                ThrowUtils.throwIf(!update, HttpsCodeEnum.OPERATION_ERROR, "图片上传失败");
+                ThrowUtils.throwIf(!update, HttpsCodeEnum.OPERATION_ERROR, "额度更新失败");
             }
             return picture;
         });
@@ -486,7 +486,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
                         .setSql("totalSize = totalSize - " + oldPicture.getPicSize())
                         .setSql("totalCount = totalCount - 1")
                         .update();
-                ThrowUtils.throwIf(!update, HttpsCodeEnum.OPERATION_ERROR, "图片上传失败");
+                ThrowUtils.throwIf(!update, HttpsCodeEnum.OPERATION_ERROR, "额度更新失败");
             }
             return true;
         });

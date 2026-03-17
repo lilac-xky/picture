@@ -10,10 +10,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 @MapperScan("com.lilac.mapper")
 @EnableAspectJAutoProxy(exposeProxy = true)
-public class BackendApplication {
+public class PictureApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(BackendApplication.class, args);
+        SpringApplication.run(PictureApplication.class, args);
     }
 
 }

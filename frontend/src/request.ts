@@ -3,7 +3,7 @@ import { message } from 'ant-design-vue';
 import router from './router';
 
 const request = axios.create({
-    baseURL: 'http://120.48.100.79:9595',
+    baseURL: 'http://localhost:9090',
     timeout: 60000,
     withCredentials: true,
 });

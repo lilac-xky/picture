@@ -1,5 +1,4 @@
 server:
-  port: 9090
   servlet:
     context-path: /api
     session:
@@ -23,12 +22,12 @@ spring:
     redis:
       host: ${picture.redis.host}
       port: ${picture.redis.port}
-      password: ${picture.redis.password}
       database: ${picture.redis.database}
+      password: ${picture.redis.password}
       timeout: 5000
   session:
     store-type: redis
-    timeout: 2592000
+    timeout: 604800
 
 mybatis-plus:
   configuration:
