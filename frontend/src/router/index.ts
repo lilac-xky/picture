@@ -7,6 +7,7 @@ import AddPicture from '@/views/AddPicture.vue'
 import PictureManage from '@/views/admin/PictureManage.vue'
 import PictureDetail from '@/views/PictureDetail.vue'
 import AddPictureBatch from '@/views/AddPictureBatch.vue'
+import SpaceManage from '@/views/admin/SpaceManage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,7 +52,12 @@ const router = createRouter({
       path: '/admin/pictureManage',
       name: 'pictureManage',
       component: PictureManage,
-    }
+    },
+    {
+      path: '/admin/spaceManage',
+      name: 'spaceManage',
+      component: SpaceManage,
+    },
   ],
 })
 

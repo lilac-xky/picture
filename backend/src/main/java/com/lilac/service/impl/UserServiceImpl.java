@@ -17,6 +17,7 @@ import com.lilac.exception.BusinessException;
 import com.lilac.service.UserService;
 import com.lilac.mapper.UserMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -55,7 +56,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 检查用户账号是否和数据库中已有的重复
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
-        long count = this.count(queryWrapper);
+        long count = baseMapper.countAllByAccount(userAccount);
         if (count > 0){
             throw new BusinessException(HttpsCodeEnum.USER_EXIST);
         }
@@ -67,9 +68,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUserName("user");
         user.setUserRole(UserRoleEnum.USER.getValue());
         // 插入数据库
-        boolean saveResult = this.save(user);
-        if (!saveResult){
-            throw new BusinessException(HttpsCodeEnum.SYSTEM_ERROR, "注册失败");
+        try {
+            boolean saveResult = this.save(user);
+            if (!saveResult){
+                throw new BusinessException(HttpsCodeEnum.SYSTEM_ERROR, "注册失败");
+            }
+        } catch (Exception e) {
+            log.error("用户注册失败，数据库唯一索引冲突: {}", e.getMessage());
+            throw new BusinessException(HttpsCodeEnum.USER_EXIST);
         }
         return user.getId();
     }
@@ -104,8 +110,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(HttpsCodeEnum.USER_OR_PASSWORD_ERROR);
         }
         // 保存用户状态
-        request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
-        return this.getLoginUserVO(user);
+        HttpSession session = request.getSession();
+        session.setAttribute(UserConstant.USER_LOGIN_STATE, user);
+        LoginUserVO loginUserVO = this.getLoginUserVO(user);
+        loginUserVO.setToken(session.getId());
+        return loginUserVO;
     }
 
     /**

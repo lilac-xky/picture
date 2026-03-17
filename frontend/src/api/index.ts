@@ -4,7 +4,9 @@
 // API 唯一标识：
 import * as userController from './userController'
 import * as pictureController from './pictureController'
+import * as spaceController from './spaceController'
 export default {
   userController,
   pictureController,
+  spaceController,
 }

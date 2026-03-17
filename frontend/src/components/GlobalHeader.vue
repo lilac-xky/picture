@@ -75,6 +75,11 @@ const originItems = [
         title: '图片管理',
     },
     {
+        key: '/admin/spaceManage',
+        label: '空间管理',
+        title: '空间管理',
+    },
+    {
         key: 'others',
         label: h('a', { href: 'https://tanghc.xyz', target: '_blank' }, 'Blog'),
         title: 'Blog',
@@ -114,7 +119,7 @@ const doMenuClick = ({ key }: { key: string }) => {
 // 退出登录
 const doLogout = async () => {
     const res = await userLogout();
-    loginUserStore.setLoginUser({ userName: '未登录' });
+    loginUserStore.logout();
     message.success('退出成功');
     router.push('/user/login');
 }

@@ -44,12 +44,13 @@ const loginUserStore = useLoginUserStore();
 const handleSubmit = async (values: any) => {
     try {
         const res = await login(values);
-        await loginUserStore.fetchLoginUser();
-        message.success('登录成功');
-        router.push({
-            path: '/',
-            replace: true
-        });
+        const loginData = res.data.data;
+        if (loginData && loginData.token) {
+            localStorage.setItem('token', loginData.token);
+            loginUserStore.setLoginUser(loginData);
+            message.success('登录成功');
+            router.push({ path: '/', replace: true });
+        }
     } catch (error) {
     }
 };

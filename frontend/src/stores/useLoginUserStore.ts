@@ -20,11 +20,17 @@ export const useLoginUserStore = defineStore('loginUser', () => {
             }
         } catch (error) {
             loginUser.value = { userName: '未登录' };
+            localStorage.removeItem('token');
         }
     }
 
     function setLoginUser(newLoginUser: API.LoginUserVO) {
         loginUser.value = newLoginUser;
     }
-    return { loginUser, fetchLoginUser, setLoginUser };
+
+    function logout() {
+        loginUser.value = { userName: '未登录' };
+        localStorage.removeItem('token');
+    }
+    return { loginUser, fetchLoginUser, setLoginUser, logout };
 })

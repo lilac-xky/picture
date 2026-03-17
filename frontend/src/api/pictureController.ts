@@ -86,7 +86,22 @@ export async function listPictureVoByPage(
   })
 }
 
-/** 图片审核 POST /api/picture/review */
+/** 获取图片列表缓存 POST /api/picture/list/page/vo/catch */
+export async function listPictureVoByPageWithCache(
+  body: API.PictureQueryRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.ResultPagePictureVO>('/api/picture/list/page/vo/catch', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
+/** 图片审核(管理员) POST /api/picture/review */
 export async function doPictureReview(
   body: API.PictureReviewRequest,
   options?: { [key: string]: any }
@@ -109,7 +124,7 @@ export async function listPictureTagCategory(options?: { [key: string]: any }) {
   })
 }
 
-/** 更新图片 POST /api/picture/update */
+/** 更新图片(管理员) POST /api/picture/update */
 export async function updatePicture(
   body: API.PictureUpdateRequest,
   options?: { [key: string]: any }

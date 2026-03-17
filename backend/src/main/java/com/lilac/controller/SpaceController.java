@@ -37,7 +37,7 @@ public class SpaceController {
 
     @Resource
     private UserService userService;
-    @Autowired
+    @Resource
     private SpaceService spaceService;
 
     /**

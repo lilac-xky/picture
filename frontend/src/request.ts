@@ -3,7 +3,7 @@ import { message } from 'ant-design-vue';
 import router from './router';
 
 const request = axios.create({
-    baseURL: 'http://localhost:9090',
+    baseURL: 'http://120.48.100.79:9595',
     timeout: 60000,
     withCredentials: true,
 });
@@ -11,11 +11,13 @@ const request = axios.create({
 // 请求拦截器
 request.interceptors.request.use(
     (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers['x-auth-token'] = token;
+        }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
 // 响应拦截器

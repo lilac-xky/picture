@@ -159,11 +159,14 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             boolean saveOrUpdate = this.saveOrUpdate(picture);
             ThrowUtils.throwIf(!saveOrUpdate, HttpsCodeEnum.OPERATION_ERROR, "图片上传失败");
             // 更新空间额度
-            boolean update = spaceService.lambdaUpdate().eq(Space::getId, finalSpaceId)
-                    .setSql("totalSize = totalSize + " + picture.getPicSize())
-                    .setSql("totalCount = totalCount + 1")
-                    .update();
-            ThrowUtils.throwIf(!update, HttpsCodeEnum.OPERATION_ERROR, "图片上传失败");
+            if (finalSpaceId != null) {
+                boolean update = spaceService.lambdaUpdate()
+                        .eq(Space::getId, finalSpaceId)
+                        .setSql("totalSize = totalSize + " + picture.getPicSize())
+                        .setSql("totalCount = totalCount + 1")
+                        .update();
+                ThrowUtils.throwIf(!update, HttpsCodeEnum.OPERATION_ERROR, "图片上传失败");
+            }
             return picture;
         });
         return PictureVO.objToVo(picture);
@@ -476,11 +479,15 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             boolean result = this.removeById(pictureId);
             ThrowUtils.throwIf(!result, HttpsCodeEnum.OPERATION_ERROR);
             // 更新空间额度
-            boolean update = spaceService.lambdaUpdate().eq(Space::getId, oldPicture.getSpaceId())
-                    .setSql("totalSize = totalSize - " + oldPicture.getPicSize())
-                    .setSql("totalCount = totalCount - 1")
-                    .update();
-            ThrowUtils.throwIf(!update, HttpsCodeEnum.OPERATION_ERROR, "图片上传失败");
+            Long spaceId = oldPicture.getSpaceId();
+            if (spaceId != null) {
+                boolean update = spaceService.lambdaUpdate()
+                        .eq(Space::getId, spaceId)
+                        .setSql("totalSize = totalSize - " + oldPicture.getPicSize())
+                        .setSql("totalCount = totalCount - 1")
+                        .update();
+                ThrowUtils.throwIf(!update, HttpsCodeEnum.OPERATION_ERROR, "图片上传失败");
+            }
             return true;
         });
         // 清理图片文件
