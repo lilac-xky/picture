@@ -23,10 +23,14 @@
                             </a-space>
                             <template #overlay>
                                 <a-menu>
-                                  <a-menu-item key="logout" @click="doLogout">
-                                    <LogoutOutlined/>
-                                    退出登录
-                                  </a-menu-item>
+                                    <a-menu-item key="my-space" @click="router.push('/my_space')">
+                                        <UserOutlined />
+                                        个人空间
+                                    </a-menu-item>
+                                    <a-menu-item key="logout" @click="doLogout">
+                                        <LogoutOutlined />
+                                        退出登录
+                                    </a-menu-item>
                                 </a-menu>
                             </template>
                         </a-dropdown>
@@ -41,8 +45,8 @@
 </template>
 
 <script setup lang="ts">
-import {computed, h, ref} from 'vue';
-import { HomeOutlined, LogoutOutlined } from '@ant-design/icons-vue';
+import { computed, h, ref } from 'vue';
+import { HomeOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons-vue';
 import { message, type MenuProps } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
 import { useLoginUserStore } from '@/stores/useLoginUserStore';
@@ -75,11 +79,6 @@ const originItems = [
         title: '图片管理',
     },
     {
-        key: '/add_space',
-        label: '创建空间',
-        title: '创建空间',
-    },
-    {
         key: '/admin/spaceManage',
         label: '空间管理',
         title: '空间管理',
@@ -93,16 +92,16 @@ const originItems = [
 
 // 过滤菜单
 const filterMenus = (menus = [] as MenuProps['items']) => {
-  return menus?.filter((menu) => {
-    // 管理员显示所有菜单，普通用户隐藏用户管理菜单
-    if (String(menu?.key).startsWith('/admin')) {
-      const loginUser = loginUserStore.loginUser;
-      if (!loginUser || loginUser.userRole !== 'admin') {
-        return false;
-      }
-    }
-    return true;
-  });
+    return menus?.filter((menu) => {
+        // 管理员显示所有菜单，普通用户隐藏用户管理菜单
+        if (String(menu?.key).startsWith('/admin')) {
+            const loginUser = loginUserStore.loginUser;
+            if (!loginUser || loginUser.userRole !== 'admin') {
+                return false;
+            }
+        }
+        return true;
+    });
 };
 
 // 展示的菜单的路由

@@ -14,6 +14,7 @@ import { uploadPictureByUrl } from '@/api/pictureController';
 
 interface Props {
     picture?: API.PictureVO;
+    spaceId?: any;
     onSuccess?: (newPicture: API.PictureVO) => void;
 }
 
@@ -27,6 +28,9 @@ const handleUpload = async () => {
     const params: API.PictureUploadRequest = { fileUrl: fileUrl.value ?? undefined };
     if(props.picture){
         params.id = props.picture.id;
+    }
+    if (props.spaceId) {
+        params.spaceId = props.spaceId;
     }
     const res = await uploadPictureByUrl(params);
     if (res.data?.data) {

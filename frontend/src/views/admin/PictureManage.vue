@@ -170,6 +170,7 @@ const fetchData = async () => {
     try {
         const res: any = await listPictureByPage({
             ...searchParams,
+            nullSpaceId: true,
         });
         dataList.value = res.data.data.records || [];
         total.value = Number(res.data.data.total) || 0;

@@ -3,12 +3,15 @@
         <h2 style="margin-bottom: 16px;">
             {{ route.query?.id ? '编辑图片' : '添加图片' }}
         </h2>
+        <a-typography-paragraph v-if="spaceId" type="secondary">
+            保存到空间：<a-tag>{{ spaceId }}</a-tag>
+        </a-typography-paragraph>
         <a-tabs v-model:activeKey="uploadType">
             <a-tab-pane key="file" tab="文件上传"><!-- 图片上传组件 -->
-                <PictureUpload :picture="picture" :onSuccess="onSuccess" />
+                <PictureUpload :picture="picture" :onSuccess="onSuccess" :spaceId="spaceId" />
             </a-tab-pane>
             <a-tab-pane key="url" tab="URL上传"><!-- Url图片上传组件 -->
-                <UrlPictureUpload :picture="picture" :onSuccess="onSuccess" />
+                <UrlPictureUpload :picture="picture" :onSuccess="onSuccess" :spaceId="spaceId" />
             </a-tab-pane>
         </a-tabs>
         <!-- 图片信息表单 -->
@@ -40,12 +43,16 @@ import { editPicture, getPictureVoById, listPictureTagCategory } from '@/api/pic
 import PictureUpload from '@/components/PictureUpload.vue';
 import UrlPictureUpload from '@/components/UrlPictureUpload.vue';
 import { message } from 'ant-design-vue';
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 const picture = ref<API.PictureVO>();
 const pictureForm = reactive<API.PictureEditRequest>({});
 const uploadType = ref<'file' | 'url'>('file');
+const router = useRouter();
+const route = useRoute();
+
+const spaceId = computed(() => route.query?.spaceId);
 
 // 上传成功回调
 const onSuccess = (newPicture: API.PictureVO) => {
@@ -64,7 +71,6 @@ const getTagCategoryOptions = async () => {
     categoryOptions.value = (res.data?.data?.categoryList || []).map((data: string) => ({ value: data, label: data }));
 };
 
-const router = useRouter();
 // 提交表单
 const handleSubmit = async (values: any) => {
     const pictureId = picture.value?.id;
@@ -73,6 +79,7 @@ const handleSubmit = async (values: any) => {
     }
     const res = await editPicture({
         id: pictureId,
+        spaceId: spaceId.value,
         ...values,
     });
     if (res.data?.data) {
@@ -84,7 +91,6 @@ const handleSubmit = async (values: any) => {
 };
 
 // 获取图片信息
-const route = useRoute();
 const getOldPicture = async () => {
     const id = route.query.id;
     if (id) {

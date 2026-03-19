@@ -20,6 +20,7 @@ import { uploadPicture } from '@/api/pictureController';
 
 interface Props {
     picture?: API.PictureVO;
+    spaceId?: any;
     onSuccess?: (newPicture: API.PictureVO) => void;
 }
 
@@ -28,8 +29,8 @@ const props = defineProps<Props>();
 // 上传图片
 const handleUpload = async ({ file }: any) => {
     loading.value = true;
-    const params = props.picture ? { id: props.picture.id } : {};
-    const res = await uploadPicture(params, {}, file);
+    const params: API.PictureUploadRequest = props.picture ? { id: props.picture.id } : {};
+    const res = await uploadPicture(params, { spaceId: props.spaceId }, file);
     if (res.data?.data) {
         message.success('上传成功');
         props.onSuccess?.(res.data.data);

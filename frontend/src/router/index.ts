@@ -9,6 +9,8 @@ import PictureDetail from '@/views/PictureDetail.vue'
 import AddPictureBatch from '@/views/AddPictureBatch.vue'
 import SpaceManage from '@/views/admin/SpaceManage.vue'
 import AddSpace from '@/views/AddSpace.vue'
+import MySpace from '@/views/MySpace.vue'
+import SpaceDetail from '@/views/SpaceDetail.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -53,6 +55,17 @@ const router = createRouter({
       path: '/add_space',
       name: 'addSpace',
       component: AddSpace,
+    },
+    {
+      path: '/my_space',
+      name: 'mySpace',
+      component: MySpace,
+    },
+    {
+      path: '/space/:id',
+      name: 'space',
+      component: SpaceDetail,
+      props: true,
     },
     {
       path: '/admin/pictureManage',
