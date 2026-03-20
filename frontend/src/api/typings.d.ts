@@ -232,6 +232,10 @@ declare namespace API {
     SpaceId?: number
     /** 空间id是否为null */
     nullSpaceId?: boolean
+    /** 开始编辑时间 */
+    startEditTime?: string
+    /** 结束编辑时间 */
+    endEditTime?: string
   }
 
   type PictureReviewRequest = {

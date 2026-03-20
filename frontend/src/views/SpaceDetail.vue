@@ -11,10 +11,13 @@
       </a-space>
     </a-flex>
     <div style="margin-bottom: 16px;"></div>
+    <!-- 搜索表单 -->
+    <PictureSearchForm :onSearch="onSearch" />
+    <div style="margin-bottom: 16px;"></div>
     <!-- 图片列表 -->
-    <PictureList :dataList="dataList" :loading="loading" :showOp="true" :onReload="fetchData"/>
+    <PictureList :dataList="dataList" :loading="loading" :showOp="true" :onReload="fetchData" />
     <a-pagination v-model:current="searchParams.current" v-model:page-size="searchParams.pageSize" :total="total"
-      @change="onPageChange" style="text-align: right;"/>
+      @change="onPageChange" style="text-align: right;" />
   </div>
 </template>
 
@@ -23,8 +26,9 @@ import { listPictureVoByPage } from '@/api/pictureController';
 import { getSpaceVoById } from '@/api/spaceController';
 import { formatSize } from '@/utils';
 import { message } from 'ant-design-vue';
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import PictureList from '@/components/PictureList.vue';
+import PictureSearchForm from '@/components/PictureSearchForm.vue';
 
 const props = defineProps<{
   id: string | number
@@ -49,10 +53,10 @@ const fetchSpaceDetail = async () => {
 
 // 计算进度
 const usagePercent = computed(() => {
-  const total = Number(space.value.totalSize) || 0; 
+  const total = Number(space.value.totalSize) || 0;
   const max = Number(space.value.maxSize) || 1;
   const percent = (total * 100) / max;
-  return Number(percent.toFixed(1)); 
+  return Number(percent.toFixed(1));
 })
 
 // 获取图片列表
@@ -61,7 +65,7 @@ const total = ref<number>(0);
 const loading = ref(true)
 
 // 查询参数
-const searchParams = reactive<API.PictureQueryRequest>({
+const searchParams = ref<API.PictureQueryRequest>({
   current: 1,
   pageSize: 12,
   sortField: 'createTime',
@@ -70,8 +74,8 @@ const searchParams = reactive<API.PictureQueryRequest>({
 
 // 分页
 const onPageChange = (page: number, pageSize: number) => {
-  searchParams.current = page
-  searchParams.pageSize = pageSize
+  searchParams.value.current = page
+  searchParams.value.pageSize = pageSize
   fetchData()
 }
 
@@ -81,17 +85,27 @@ const fetchData = async () => {
 
   const params = {
     spaceId: props.id,
-    ...searchParams,
+    ...searchParams.value,
   }
   const res = await listPictureVoByPage(params)
   if (res.data.data) {
     dataList.value = res.data.data.records ?? []
-    total.value = Number(res.data.data.total) || 0; 
+    total.value = Number(res.data.data.total) || 0;
   } else {
     message.error('获取数据失败，' + res.data.msg)
   }
   loading.value = false
 }
+
+// 搜索
+const onSearch = (newSearchParams: API.PictureQueryRequest) => {
+  searchParams.value = {
+    ...searchParams.value,
+    ...newSearchParams,
+    current: 1,
+  }
+  fetchData();
+};
 
 onMounted(() => {
   fetchSpaceDetail()
