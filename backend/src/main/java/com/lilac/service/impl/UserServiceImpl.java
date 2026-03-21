@@ -125,8 +125,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public User getLoginUser(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new BusinessException(HttpsCodeEnum.NEED_LOGIN);
+        }
         // 判断用户是否登录
-        Object userObj = request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
+        Object userObj = session.getAttribute(UserConstant.USER_LOGIN_STATE);
         User currentUser = (User) userObj;
         if (currentUser == null || currentUser.getId() == null){
             throw new BusinessException(HttpsCodeEnum.NEED_LOGIN);
@@ -154,7 +158,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(HttpsCodeEnum.NEED_LOGIN);
         }
         // 移除用户
-        request.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.removeAttribute(UserConstant.USER_LOGIN_STATE);
+            session.invalidate();
+        }
         return true;
     }
 

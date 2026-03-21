@@ -9,15 +9,22 @@ let firstFetchLoginUser: boolean = true;
 router.beforeEach(async (to, from, next) => {
     const loginUserStore = useLoginUserStore();
     let loginUser = loginUserStore.loginUser;
-    // 确保页面加载时只获取一次登录用户信息
+    const token = localStorage.getItem('token');
+
     if (firstFetchLoginUser) {
-        await loginUserStore.fetchLoginUser();
+        if (token) {
+            try {
+                await loginUserStore.fetchLoginUser();
+                loginUser = loginUserStore.loginUser;
+            } catch (error) {
+                localStorage.removeItem('token');
+            }
+        }
         firstFetchLoginUser = false;
-        loginUser = loginUserStore.loginUser;
     }
     const toUrl = to.fullPath;
-    if(toUrl.startsWith('/admin')) {
-        if(!loginUser || loginUser.userRole !== 'admin'){
+    if (toUrl.startsWith('/admin')) {
+        if (!loginUser || loginUser.userRole !== 'admin') {
             message.error('无权限访问');
             next('/user/login?redirect=${to.fullPath');
             return;

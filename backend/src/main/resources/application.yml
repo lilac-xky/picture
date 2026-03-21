@@ -27,6 +27,7 @@ spring:
       timeout: 5000
   session:
     store-type: redis
+    flush-mode: on_save
     timeout: 604800
 
 mybatis-plus:
