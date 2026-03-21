@@ -26,6 +26,21 @@ export async function editPicture(body: API.PictureEditRequest, options?: { [key
   })
 }
 
+/** 图片批量编辑 POST /api/picture/edit/batch */
+export async function editPictureByBatch(
+  body: API.PictureEditByBatchRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.ResultBoolean>('/api/picture/edit/batch', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 /** 获取图片(仅管理员) GET /api/picture/get */
 export async function getPictureById(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

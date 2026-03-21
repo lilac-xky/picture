@@ -36,6 +36,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -524,4 +525,77 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         boolean result = this.updateById(picture);
         ThrowUtils.throwIf(!result, HttpsCodeEnum.OPERATION_ERROR);
     }
+
+    /**
+     * 编辑图片（批量）
+     *
+     * @param pictureEditByBatchRequest 图片编辑参数
+     * @param loginUser                 登录用户
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void editPictureByBatch(PictureEditByBatchRequest pictureEditByBatchRequest, User loginUser) {
+        // 获取参数
+        List<Long> pictureIdList = pictureEditByBatchRequest.getPictureIdList();
+        Long spaceId = pictureEditByBatchRequest.getSpaceId();
+        String category = pictureEditByBatchRequest.getCategory();
+        List<String> tags = pictureEditByBatchRequest.getTags();
+        // 校验
+        ThrowUtils.throwIf(spaceId == null || CollUtil.isEmpty(pictureIdList), HttpsCodeEnum.PARAMS_ERROR);
+        ThrowUtils.throwIf(loginUser == null, HttpsCodeEnum.UNAUTHORIZED);
+        // 获取空间
+        Space space = spaceService.getById(spaceId);
+        ThrowUtils.throwIf(space == null, HttpsCodeEnum.NOT_FOUND_ERROR, "空间不存在");
+        if (!loginUser.getId().equals(space.getUserId())) {
+            throw new BusinessException(HttpsCodeEnum.UNAUTHORIZED, "没有空间访问权限");
+        }
+        // 获取图片
+        List<Picture> pictureList = this.lambdaQuery()
+                .select(Picture::getId, Picture::getSpaceId)
+                .eq(Picture::getSpaceId, spaceId)
+                .in(Picture::getId, pictureIdList)
+                .list();
+        // 图片不存在
+        if (pictureList.isEmpty()) {
+            return;
+        }
+        // 更新分类和标签
+        pictureList.forEach(picture -> {
+            if (StrUtil.isNotBlank(category)) {
+                picture.setCategory(category);
+            }
+            if (CollUtil.isNotEmpty(tags)) {
+                picture.setTags(JSONUtil.toJsonStr(tags));
+            }
+        });
+        // 批量重命名
+        String nameRule = pictureEditByBatchRequest.getNameRule();
+        fillPictureWithNameRule(pictureList, nameRule);
+        // 更新
+        boolean result = this.updateBatchById(pictureList);
+        ThrowUtils.throwIf(!result, HttpsCodeEnum.OPERATION_ERROR, "批量更新失败");
+    }
+
+    /**
+     * 批量重命名图片 格式：图片{序号}
+     *
+     * @param pictureList 图片列表
+     * @param nameRule    命名规则
+     */
+    private void fillPictureWithNameRule(List<Picture> pictureList, String nameRule) {
+        if(StrUtil.isBlank(nameRule) || CollUtil.isEmpty(pictureList)){
+            return;
+        }
+        long count = 1;
+        try {
+            for (Picture picture : pictureList) {
+                String pictureName = nameRule.replaceAll("\\{序号}", String.valueOf(count++));
+                picture.setName(pictureName);
+            }
+        } catch (Exception e) {
+            log.error("批量重命名图片失败, {}", e.getMessage());
+            throw new BusinessException(HttpsCodeEnum.OPERATION_ERROR, "批量重命名图片失败");
+        }
+    }
+
 }

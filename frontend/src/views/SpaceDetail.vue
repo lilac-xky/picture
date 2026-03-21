@@ -5,6 +5,7 @@
       <h2>{{ space.spaceName }} (个人空间)</h2>
       <a-space size="middle">
         <a-button type="primary" :href="`/add_picture?spaceId=${id}`">创建图片</a-button>
+        <a-button :icon="h(EditOutlined)" @click="doBatchEdit"> 批量编辑</a-button>
         <a-tooltip :title="`占用空间 ${formatSize(space.totalSize)} / ${formatSize(space.maxSize)}`">
           <a-progress type="circle" :percent="usagePercent" :size="40" />
         </a-tooltip>
@@ -18,6 +19,8 @@
     <PictureList :dataList="dataList" :loading="loading" :showOp="true" :onReload="fetchData" />
     <a-pagination v-model:current="searchParams.current" v-model:page-size="searchParams.pageSize" :total="total"
       @change="onPageChange" style="text-align: right;" />
+    <BatchEditPictureModal ref="batchEditPictureModalRef" :pictureList="dataList" :spaceId="String(id)"
+      :onSuccess="onBatchEditPictureSuccess" />
   </div>
 </template>
 
@@ -26,9 +29,11 @@ import { listPictureVoByPage } from '@/api/pictureController';
 import { getSpaceVoById } from '@/api/spaceController';
 import { formatSize } from '@/utils';
 import { message } from 'ant-design-vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, h, onMounted, ref } from 'vue';
+import { EditOutlined } from '@ant-design/icons-vue';
 import PictureList from '@/components/PictureList.vue';
 import PictureSearchForm from '@/components/PictureSearchForm.vue';
+import BatchEditPictureModal from '@/components/BatchEditPictureModal.vue'
 
 const props = defineProps<{
   id: string | number
@@ -106,6 +111,17 @@ const onSearch = (newSearchParams: API.PictureQueryRequest) => {
   }
   fetchData();
 };
+
+// 批量编辑图片
+const batchEditPictureModalRef = ref()
+const onBatchEditPictureSuccess = () => {
+  fetchData()
+}
+const doBatchEdit = () => {
+  if (batchEditPictureModalRef.value) {
+    batchEditPictureModalRef.value.openModal()
+  }
+}
 
 onMounted(() => {
   fetchSpaceDetail()

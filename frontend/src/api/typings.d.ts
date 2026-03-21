@@ -1,4 +1,6 @@
 declare namespace API {
+  type Date = {}
+
   type DeleteRequest = {
     /** id */
     id?: number
@@ -29,6 +31,16 @@ declare namespace API {
     id?: number
   }
 
+  type getUserByIdParams = {
+    /** 用户id */
+    id?: number
+  }
+
+  type getUserVOByIdParams = {
+    /** 用户id */
+    id?: number
+  }
+
   type getUserVOByIdParams = {
     /** 用户id */
     id?: number
@@ -47,12 +59,12 @@ declare namespace API {
     userProfile?: string
     /** 用户角色(user/admin) */
     userRole?: string
-    /** 编辑时间 */
-    editTime?: string
     /** 创建时间 */
-    createTime?: string
-    /** 更新时间 */
-    updateTime?: string
+    editTime?: Date
+    /** 创建时间 */
+    createTime?: Date
+    /** 创建时间 */
+    updateTime?: Date
     /** token */
     token?: string
   }
@@ -162,16 +174,29 @@ declare namespace API {
     reviewMessage?: string
     /** 审核人id */
     reviewerId?: number
-    /** 审核时间 */
-    reviewTime?: string
     /** 创建时间 */
-    createTime?: string
-    /** 编辑时间 */
-    editTime?: string
-    /** 更新时间 */
-    updateTime?: string
+    reviewTime?: Date
+    /** 创建时间 */
+    createTime?: Date
+    /** 创建时间 */
+    editTime?: Date
+    /** 创建时间 */
+    updateTime?: Date
     /** 是否删除 */
     isDelete?: string
+  }
+
+  type PictureEditByBatchRequest = {
+    /** 图片id列表 */
+    pictureIdList?: number[]
+    /** 空间id */
+    spaceId?: number
+    /** 分类 */
+    category?: string
+    /** 标签 */
+    tags?: string[]
+    /** 重命名规则 */
+    nameRule?: string
   }
 
   type PictureEditRequest = {
@@ -224,18 +249,18 @@ declare namespace API {
     reviewMessage?: string
     /** 审核人id */
     reviewerId?: number
-    /** 审核时间 */
-    reviewTime?: string
+    /** 创建时间 */
+    reviewTime?: Date
     /** 搜索关键词 */
     searchText?: string
     /** 空间id */
     SpaceId?: number
     /** 空间id是否为null */
     nullSpaceId?: boolean
-    /** 开始编辑时间 */
-    startEditTime?: string
-    /** 结束编辑时间 */
-    endEditTime?: string
+    /** 创建时间 */
+    startEditTime?: Date
+    /** 创建时间 */
+    endEditTime?: Date
   }
 
   type PictureReviewRequest = {
@@ -317,11 +342,11 @@ declare namespace API {
     /** 空间 id（为空表示公共空间） */
     spaceId?: number
     /** 创建时间 */
-    createTime?: string
-    /** 编辑时间 */
-    editTime?: string
-    /** 更新时间 */
-    updateTime?: string
+    createTime?: Date
+    /** 创建时间 */
+    editTime?: Date
+    /** 创建时间 */
+    updateTime?: Date
     /** 创建用户信息 */
     user?: UserVO
   }
@@ -450,11 +475,11 @@ declare namespace API {
     /** 创建用户 id */
     userId?: number
     /** 创建时间 */
-    createTime?: string
-    /** 编辑时间 */
-    editTime?: string
-    /** 更新时间 */
-    updateTime?: string
+    createTime?: Date
+    /** 创建时间 */
+    editTime?: Date
+    /** 创建时间 */
+    updateTime?: Date
     /** 是否删除 */
     isDelete?: number
   }
@@ -534,11 +559,11 @@ declare namespace API {
     /** 创建用户 id */
     userId?: number
     /** 创建时间 */
-    createTime?: string
-    /** 编辑时间 */
-    editTime?: string
-    /** 更新时间 */
-    updateTime?: string
+    createTime?: Date
+    /** 创建时间 */
+    editTime?: Date
+    /** 创建时间 */
+    updateTime?: Date
     /** 创建用户信息 */
     user?: UserVO
   }
@@ -569,12 +594,12 @@ declare namespace API {
     userProfile?: string
     /** 用户角色(user/admin) */
     userRole?: string
-    /** 编辑时间 */
-    editTime?: string
     /** 创建时间 */
-    createTime?: string
-    /** 更新时间 */
-    updateTime?: string
+    editTime?: Date
+    /** 创建时间 */
+    createTime?: Date
+    /** 创建时间 */
+    updateTime?: Date
     /** 是否删除 */
     isDelete?: number
   }
@@ -658,6 +683,6 @@ declare namespace API {
     /** 用户角色(user/admin) */
     userRole?: string
     /** 创建时间 */
-    createTime?: string
+    createTime?: Date
   }
 }

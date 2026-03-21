@@ -41,10 +41,12 @@
             </a-button>
             <a-button v-if="canEdit" :icon="h(EditOutlined)" type="default" @click="doEdit">编辑</a-button>
             <a-button v-if="canEdit" :icon="h(DeleteOutlined)" danger @click="doDelete">删除</a-button>
+            <a-button :icon="h(ShareAltOutlined)" type="primary" ghost @click="doShare">分享</a-button>
           </a-space>
         </a-card>
       </a-col>
     </a-row>
+    <ShareModel ref="shareModelRef" :title="shareTitle" :link="shareLink" />
   </div>
 </template>
 
@@ -52,10 +54,11 @@
 import { deletePicture, getPictureVoById } from '@/api/pictureController';
 import { downloadImage, formatSize } from '@/utils';
 import { message } from 'ant-design-vue';
-import { DeleteOutlined, DownloadOutlined, EditOutlined } from '@ant-design/icons-vue';
+import { DeleteOutlined, DownloadOutlined, EditOutlined, ShareAltOutlined } from '@ant-design/icons-vue';
 import { computed, h, onMounted, ref } from 'vue';
 import { useLoginUserStore } from '@/stores/useLoginUserStore';
 import { useRouter } from 'vue-router';
+import ShareModel from '@/components/ShareModal.vue';
 
 // 图片参数
 interface Props {
@@ -84,7 +87,7 @@ const loginUserStore = useLoginUserStore();
 // 是否具有编辑权限
 const canEdit = computed(() => {
   const loginUser = loginUserStore.loginUser;
-  if(!loginUser.id) {
+  if (!loginUser.id) {
     return false;
   }
   // 只有管理员或图片作者可以编辑
@@ -107,7 +110,7 @@ const doEdit = () => {
 // 删除图片
 const doDelete = async () => {
   const id = picture.value.id;
-  if(!id) {
+  if (!id) {
     return;
   }
   const res = await deletePicture({ id });
@@ -120,8 +123,17 @@ const doDelete = async () => {
 };
 
 // 下载图片
-const doDownload = () => {  
-  downloadImage(picture.value.url)  
+const doDownload = () => {
+  downloadImage(picture.value.url)
+}
+
+// 分享图片
+const shareModelRef = ref()
+const shareTitle = '分享图片'
+const shareLink = ref<string>('')
+const doShare = () => {
+  shareLink.value = `${window.location.protocol}//${window.location.host}/picture/${picture.value.id}`
+  shareModelRef.value?.openModel()
 }
 
 onMounted(() => {

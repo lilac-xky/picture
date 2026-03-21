@@ -28,19 +28,26 @@
                 <DeleteOutlined />
                 删除
               </a-space>
+              <a-space @click="(e: MouseEvent) => doShare(picture, e)">
+                <ShareAltOutlined />
+                分享
+              </a-space>
             </template>
           </a-card>
         </a-list-item>
       </template>
     </a-list>
+    <ShareModel ref="shareModelRef" :title="shareTitle" :link="shareLink"/>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons-vue'
+import { EditOutlined, DeleteOutlined, ShareAltOutlined } from '@ant-design/icons-vue'
 import { deletePicture } from '@/api/pictureController'
 import { message } from 'ant-design-vue'
+import ShareModel from './ShareModal.vue'
+import { ref } from 'vue'
 
 interface Props {
   dataList?: API.PictureVO[]
@@ -89,6 +96,16 @@ const doDelete = async (picture: API.PictureVO, e: MouseEvent) => {
   } else {
     message.error('删除失败');
   }
+}
+
+// 分享图片
+const shareModelRef = ref()
+const shareTitle = '分享图片'
+const shareLink = ref<string>('')
+const doShare = (picture: API.PictureVO, e: MouseEvent) => {
+  e.stopPropagation()
+  shareLink.value = `${window.location.protocol}//${window.location.host}/picture/${picture.id}`
+  shareModelRef.value?.openModel()
 }
 </script>
 

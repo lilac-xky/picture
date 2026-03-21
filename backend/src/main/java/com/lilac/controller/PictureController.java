@@ -330,4 +330,18 @@ public class PictureController {
         int uploadCount = pictureService.uploadPictureByBatch(pictureUploadByBatchRequest, loginUser);
         return Result.success(uploadCount);
     }
+
+    /**
+     * 图片批量编辑
+     *
+     * @param pictureEditByBatchRequest 图片编辑参数
+     * @return 编辑结果
+     */
+    @PostMapping("/edit/batch")
+    public Result<Boolean> editPictureByBatch(@RequestBody PictureEditByBatchRequest pictureEditByBatchRequest, HttpServletRequest request){
+        ThrowUtils.throwIf(pictureEditByBatchRequest == null, HttpsCodeEnum.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        pictureService.editPictureByBatch(pictureEditByBatchRequest, loginUser);
+        return Result.success(true);
+    }
 }
