@@ -14,6 +14,11 @@
                 <UrlPictureUpload :picture="picture" :onSuccess="onSuccess" :spaceId="spaceId" />
             </a-tab-pane>
         </a-tabs>
+        <div v-if="picture" class="edit-bar">
+            <a-button :icon="h(EditOutlined)" @click="doEditPicture">编辑图片</a-button>
+            <ImageCropper ref="imageCropperRef" :imageUrl="picture?.url" :picture="picture" :spaceId="spaceId"
+                :onSuccess="onCropSuccess" />
+        </div>
         <!-- 图片信息表单 -->
         <a-form v-if="picture" layout="vertical" name="pictureForm" :model="pictureForm" @finish="handleSubmit">
             <a-form-item name="name" label="图片名称">
@@ -43,8 +48,10 @@ import { editPicture, getPictureVoById, listPictureTagCategory } from '@/api/pic
 import PictureUpload from '@/components/PictureUpload.vue';
 import UrlPictureUpload from '@/components/UrlPictureUpload.vue';
 import { message } from 'ant-design-vue';
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, h, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import ImageCropper from '@/components/ImageCropper.vue';
+import { EditOutlined } from '@ant-design/icons-vue';
 
 const picture = ref<API.PictureVO>();
 const pictureForm = reactive<API.PictureEditRequest>({});
@@ -103,6 +110,21 @@ const getOldPicture = async () => {
     }
 };
 
+// 编辑图片
+const imageCropperRef = ref()
+
+// 打开编辑弹窗
+const doEditPicture = () => {
+    if (imageCropperRef.value) {
+        imageCropperRef.value.openModal()
+    }
+}
+
+// 图片裁剪成功回调
+const onCropSuccess = (newPicture: API.PictureVO) => {
+    picture.value = newPicture
+}
+
 onMounted(() => {
     getTagCategoryOptions();
     getOldPicture();
@@ -113,5 +135,10 @@ onMounted(() => {
 #addPicture {
     max-width: 720px;
     margin: 0 auto;
+}
+
+#addPicture .edit-bar {
+  text-align: center;
+  margin: 16px 0;
 }
 </style>

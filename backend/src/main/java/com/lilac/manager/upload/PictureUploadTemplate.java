@@ -50,7 +50,7 @@ public abstract class PictureUploadTemplate {
         String uploadFilename = String.format("%s%s.%s", DateUtil.formatDate(new Date()),uuid, FileUtil.getSuffix(originalFilename));
         // 构建上传路径
         String projectName = "lilac-picture";
-        String uploadPath = String.format(projectName + "/%s/%s/%s", uploadPathPrefix, DateUtil.format(new Date(),"yyyy/MM"), uploadFilename);
+        String uploadPath = String.format(projectName + "/%s/%s/%s", uploadPathPrefix, DateUtil.format(new Date(),"yyyy/MM/dd"), uploadFilename);
         // 解析结果并返回
         File file = null;
         try {

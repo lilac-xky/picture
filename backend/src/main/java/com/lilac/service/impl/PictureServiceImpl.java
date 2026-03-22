@@ -424,7 +424,6 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
      * 清理图片文件
      * @param picture 图片
      */
-//    @Async
     @Override
     public void clearPictureFile(Picture picture) {
         String picUrl = picture.getUrl();
