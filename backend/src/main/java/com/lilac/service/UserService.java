@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
+ * 用户服务
 * @author lilac
 */
 public interface UserService extends IService<User> {

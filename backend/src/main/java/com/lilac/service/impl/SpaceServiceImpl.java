@@ -219,6 +219,20 @@ public class SpaceServiceImpl extends ServiceImpl<SpaceMapper, Space> implements
             }
         }
     }
+
+    /**
+     * 校验空间权限
+     *
+     * @param loginUser 登录用户
+     * @param space     空间
+     */
+    @Override
+    public void checkSpaceAuth(User loginUser, Space space) {
+        // 仅管理员和本人可操作
+        if (!space.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
+            throw new BusinessException(HttpsCodeEnum.UNAUTHORIZED);
+        }
+    }
 }
 
 

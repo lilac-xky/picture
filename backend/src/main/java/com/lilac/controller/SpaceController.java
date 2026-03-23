@@ -70,9 +70,7 @@ public class SpaceController {
         Space oldSpace = spaceService.getById(id);
         ThrowUtils.throwIf(oldSpace == null, HttpsCodeEnum.NOT_FOUND_ERROR);
         // 仅本人和管理员可删除
-        if (!oldSpace.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
-            throw new BusinessException(HttpsCodeEnum.UNAUTHORIZED);
-        }
+        spaceService.checkSpaceAuth(loginUser, oldSpace);
         // 删除
         boolean result = spaceService.removeById(id);
         ThrowUtils.throwIf(!result, HttpsCodeEnum.OPERATION_ERROR);
@@ -192,9 +190,7 @@ public class SpaceController {
         Space oldSpace = spaceService.getById(id);
         ThrowUtils.throwIf(oldSpace == null, HttpsCodeEnum.NOT_FOUND_ERROR);
         // 仅本人和管理员可编辑
-        if (!oldSpace.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
-            throw new BusinessException(HttpsCodeEnum.UNAUTHORIZED);
-        }
+        spaceService.checkSpaceAuth(loginUser, oldSpace);
         boolean result = spaceService.updateById(space);
         ThrowUtils.throwIf(!result, HttpsCodeEnum.OPERATION_ERROR);
         return Result.success(true);
