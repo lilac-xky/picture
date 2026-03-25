@@ -1,6 +1,4 @@
 declare namespace API {
-  type Date = {}
-
   type DeleteRequest = {
     /** id */
     id?: number
@@ -59,12 +57,12 @@ declare namespace API {
     userProfile?: string
     /** 用户角色(user/admin) */
     userRole?: string
+    /** 编辑时间 */
+    editTime?: string
     /** 创建时间 */
-    editTime?: Date
-    /** 创建时间 */
-    createTime?: Date
-    /** 创建时间 */
-    updateTime?: Date
+    createTime?: string
+    /** 更新时间 */
+    updateTime?: string
     /** token */
     token?: string
   }
@@ -174,14 +172,14 @@ declare namespace API {
     reviewMessage?: string
     /** 审核人id */
     reviewerId?: number
+    /** 审核时间 */
+    reviewTime?: string
     /** 创建时间 */
-    reviewTime?: Date
-    /** 创建时间 */
-    createTime?: Date
-    /** 创建时间 */
-    editTime?: Date
-    /** 创建时间 */
-    updateTime?: Date
+    createTime?: string
+    /** 编辑时间 */
+    editTime?: string
+    /** 更新时间 */
+    updateTime?: string
     /** 是否删除 */
     isDelete?: string
   }
@@ -249,18 +247,18 @@ declare namespace API {
     reviewMessage?: string
     /** 审核人id */
     reviewerId?: number
-    /** 创建时间 */
-    reviewTime?: Date
+    /** 审核时间 */
+    reviewTime?: string
     /** 搜索关键词 */
     searchText?: string
     /** 空间id */
     SpaceId?: number
     /** 空间id是否为null */
     nullSpaceId?: boolean
-    /** 创建时间 */
-    startEditTime?: Date
-    /** 创建时间 */
-    endEditTime?: Date
+    /** 开始编辑时间 */
+    startEditTime?: string
+    /** 结束编辑时间 */
+    endEditTime?: string
   }
 
   type PictureReviewRequest = {
@@ -342,11 +340,11 @@ declare namespace API {
     /** 空间 id（为空表示公共空间） */
     spaceId?: number
     /** 创建时间 */
-    createTime?: Date
-    /** 创建时间 */
-    editTime?: Date
-    /** 创建时间 */
-    updateTime?: Date
+    createTime?: string
+    /** 编辑时间 */
+    editTime?: string
+    /** 更新时间 */
+    updateTime?: string
     /** 创建用户信息 */
     user?: UserVO
   }
@@ -363,10 +361,40 @@ declare namespace API {
     data?: number
   }
 
+  type ResultListSpace = {
+    code?: number
+    msg?: string
+    data?: Space[]
+  }
+
+  type ResultListSpaceCategoryAnalyzeResponse = {
+    code?: number
+    msg?: string
+    data?: SpaceCategoryAnalyzeResponse[]
+  }
+
   type ResultListSpaceLevel = {
     code?: number
     msg?: string
     data?: SpaceLevel[]
+  }
+
+  type ResultListSpaceSizeAnalyzeResponse = {
+    code?: number
+    msg?: string
+    data?: SpaceSizeAnalyzeResponse[]
+  }
+
+  type ResultListSpaceTagAnalyzeResponse = {
+    code?: number
+    msg?: string
+    data?: SpaceTagAnalyzeResponse[]
+  }
+
+  type ResultListSpaceUserAnalyzeResponse = {
+    code?: number
+    msg?: string
+    data?: SpaceUserAnalyzeResponse[]
   }
 
   type ResultLoginUserVO = {
@@ -437,6 +465,12 @@ declare namespace API {
     data?: Space
   }
 
+  type ResultSpaceUsageAnalyzeResponse = {
+    code?: number
+    msg?: string
+    data?: SpaceUsageAnalyzeResponse
+  }
+
   type ResultSpaceVO = {
     code?: number
     msg?: string
@@ -475,11 +509,11 @@ declare namespace API {
     /** 创建用户 id */
     userId?: number
     /** 创建时间 */
-    createTime?: Date
-    /** 创建时间 */
-    editTime?: Date
-    /** 创建时间 */
-    updateTime?: Date
+    createTime?: string
+    /** 编辑时间 */
+    editTime?: string
+    /** 更新时间 */
+    updateTime?: string
     /** 是否删除 */
     isDelete?: number
   }
@@ -489,6 +523,24 @@ declare namespace API {
     spaceName?: string
     /** 空间级别：0-普通版 1-专业版 2-旗舰版 */
     spaceLevel?: number
+  }
+
+  type SpaceCategoryAnalyzeRequest = {
+    /** 空间id */
+    spaceId?: number
+    /** 是否查询公开空间 */
+    queryPublic?: boolean
+    /** 是否查询所有空间 */
+    queryAll?: boolean
+  }
+
+  type SpaceCategoryAnalyzeResponse = {
+    /** 图片分类 */
+    category?: string
+    /** 图片数量 */
+    count?: number
+    /** 分类图片总大小 */
+    totalSize?: number
   }
 
   type SpaceEditRequest = {
@@ -528,6 +580,43 @@ declare namespace API {
     spaceLevel?: number
   }
 
+  type SpaceRankAnalyzeRequest = {
+    /** 获取前N名 */
+    topN?: number
+  }
+
+  type SpaceSizeAnalyzeRequest = {
+    /** 空间id */
+    spaceId?: number
+    /** 是否查询公开空间 */
+    queryPublic?: boolean
+    /** 是否查询所有空间 */
+    queryAll?: boolean
+  }
+
+  type SpaceSizeAnalyzeResponse = {
+    /** 图片大小范围 */
+    sizeRange?: string
+    /** 图片数量 */
+    count?: number
+  }
+
+  type SpaceTagAnalyzeRequest = {
+    /** 空间id */
+    spaceId?: number
+    /** 是否查询公开空间 */
+    queryPublic?: boolean
+    /** 是否查询所有空间 */
+    queryAll?: boolean
+  }
+
+  type SpaceTagAnalyzeResponse = {
+    /** 标签 */
+    tag?: string
+    /** 数量 */
+    count?: number
+  }
+
   type SpaceUpdateRequest = {
     /** 空间id */
     id?: number
@@ -539,6 +628,50 @@ declare namespace API {
     maxSize?: number
     /** 空间图片的最大数量 */
     maxCount?: number
+  }
+
+  type SpaceUsageAnalyzeRequest = {
+    /** 空间id */
+    spaceId?: number
+    /** 是否查询公开空间 */
+    queryPublic?: boolean
+    /** 是否查询所有空间 */
+    queryAll?: boolean
+  }
+
+  type SpaceUsageAnalyzeResponse = {
+    /** 已使用的空间大小 */
+    usedSize?: number
+    /** 最大空间大小 */
+    maxSize?: number
+    /** 空间使用比率 */
+    sizeUsageRatio?: number
+    /** 已使用的图片数量 */
+    usedCount?: number
+    /** 最大图片数量 */
+    maxCount?: number
+    /** 图片数量占比 */
+    countUsageRatio?: number
+  }
+
+  type SpaceUserAnalyzeRequest = {
+    /** 空间id */
+    spaceId?: number
+    /** 是否查询公开空间 */
+    queryPublic?: boolean
+    /** 是否查询所有空间 */
+    queryAll?: boolean
+    /** 用户id */
+    userId?: number
+    /** 时间维度 */
+    timeDimension?: string
+  }
+
+  type SpaceUserAnalyzeResponse = {
+    /** 时间段 */
+    period?: string
+    /** 数量 */
+    count?: number
   }
 
   type SpaceVO = {
@@ -559,11 +692,11 @@ declare namespace API {
     /** 创建用户 id */
     userId?: number
     /** 创建时间 */
-    createTime?: Date
-    /** 创建时间 */
-    editTime?: Date
-    /** 创建时间 */
-    updateTime?: Date
+    createTime?: string
+    /** 编辑时间 */
+    editTime?: string
+    /** 更新时间 */
+    updateTime?: string
     /** 创建用户信息 */
     user?: UserVO
   }
@@ -594,12 +727,12 @@ declare namespace API {
     userProfile?: string
     /** 用户角色(user/admin) */
     userRole?: string
+    /** 编辑时间 */
+    editTime?: string
     /** 创建时间 */
-    editTime?: Date
-    /** 创建时间 */
-    createTime?: Date
-    /** 创建时间 */
-    updateTime?: Date
+    createTime?: string
+    /** 更新时间 */
+    updateTime?: string
     /** 是否删除 */
     isDelete?: number
   }
@@ -683,6 +816,6 @@ declare namespace API {
     /** 用户角色(user/admin) */
     userRole?: string
     /** 创建时间 */
-    createTime?: Date
+    createTime?: string
   }
 }

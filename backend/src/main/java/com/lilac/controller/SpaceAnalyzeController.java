@@ -53,8 +53,8 @@ public class SpaceAnalyzeController {
     public Result<List<SpaceCategoryAnalyzeResponse>> getSpaceCategoryAnalyze(@RequestBody SpaceCategoryAnalyzeRequest spaceCategoryAnalyzeRequest, HttpServletRequest request){
         ThrowUtils.throwIf(spaceCategoryAnalyzeRequest == null, HttpsCodeEnum.PARAMS_ERROR);
         User loginUser = userService.getLoginUser(request);
-        List<SpaceCategoryAnalyzeResponse> spaceCategoryAnalyze = spaceAnalyzeService.getSpaceCategoryAnalyze(spaceCategoryAnalyzeRequest, loginUser);
-        return Result.success(spaceCategoryAnalyze);
+        List<SpaceCategoryAnalyzeResponse> resultList = spaceAnalyzeService.getSpaceCategoryAnalyze(spaceCategoryAnalyzeRequest, loginUser);
+        return Result.success(resultList);
     }
 
     /**

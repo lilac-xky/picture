@@ -5,8 +5,10 @@
 import * as userController from './userController'
 import * as pictureController from './pictureController'
 import * as spaceController from './spaceController'
+import * as spaceAnalyzeController from './spaceAnalyzeController'
 export default {
   userController,
   pictureController,
   spaceController,
+  spaceAnalyzeController,
 }

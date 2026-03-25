@@ -152,12 +152,12 @@ public class SpaceAnalyzeServiceImpl implements SpaceAnalyzeService {
         QueryWrapper<Picture> queryWrapper = new QueryWrapper<>();
         fillAnalyzeQueryWrapper(spaceCategoryAnalyzeRequest, queryWrapper);
         // 分组查询
-        queryWrapper.select("category", "count(*) as count", "sum(picSize) as totalSize").groupBy("category");
-        return pictureService.getBaseMapper().selectMaps(queryWrapper)
-                .stream().map(map -> {
-                    String category = (String) map.get("category");
-                    Long count = (Long) map.get("count");
-                    Long totalSize = (Long) map.get("totalSize");
+        queryWrapper.select("category AS category", "COUNT(*) AS count", "SUM(picSize) AS totalSize").groupBy("category");
+        return pictureService.getBaseMapper().selectMaps(queryWrapper).stream()
+                .map(result -> {
+                    String category = result.get("category") != null ? result.get("category").toString() : "未分类";
+                    Long count = ((Number) result.get("count")).longValue();
+                    Long totalSize = ((Number) result.get("totalSize")).longValue();
                     return new SpaceCategoryAnalyzeResponse(category, count, totalSize);
                 }).collect(Collectors.toList());
     }
