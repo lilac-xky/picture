@@ -83,3 +83,22 @@ create table if not exists space
     index idx_spaceName (spaceName),
     index idx_spaceLevel (spaceLevel)
 ) comment '空间' collate = utf8mb4_unicode_ci;
+
+ALTER TABLE space
+    ADD COLUMN spaceType int default 0 not null comment '空间类型：0-私有 1-团队';
+CREATE INDEX idx_spaceType ON space (spaceType);
+
+-- 空间成员表
+create table if not exists space_user
+(
+    id          bigint auto_increment comment 'id' primary key,
+    spaceId     bigint                                  not null comment '空间id',
+    userId      bigint                                  not null comment '用户id',
+    spaceRole   varchar(128) default 'viewer'           null comment '空间角色: viewer/editor/admin',
+    createTime  datetime     default CURRENT_TIMESTAMP  not null comment '创建时间',
+    updateTime  datetime     default CURRENT_TIMESTAMP  not null on update CURRENT_TIMESTAMP comment '更新时间',
+    -- 索引
+    UNIQUE KEY uk_spaceId_userId (spaceId, userId),
+    INDEX idx_spaceId (spaceId),
+    INDEX idx_userId (userId)
+) comment '空间用户关联' collate = utf8mb4_unicode_ci;
