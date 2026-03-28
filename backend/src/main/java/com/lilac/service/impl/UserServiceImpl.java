@@ -14,6 +14,7 @@ import com.lilac.domain.vo.UserVO;
 import com.lilac.enums.HttpsCodeEnum;
 import com.lilac.enums.UserRoleEnum;
 import com.lilac.exception.BusinessException;
+import com.lilac.manager.auth.StpKit;
 import com.lilac.service.UserService;
 import com.lilac.mapper.UserMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -114,6 +115,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         session.setAttribute(UserConstant.USER_LOGIN_STATE, user);
         LoginUserVO loginUserVO = this.getLoginUserVO(user);
         loginUserVO.setToken(session.getId());
+        // 记录用户登录状态到Sa-token，便于空间鉴权时使用
+        StpKit.SPACE.login(user.getId());
+        StpKit.SPACE.getSession().set(UserConstant.USER_LOGIN_STATE, user);
         return loginUserVO;
     }
 

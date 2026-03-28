@@ -24,6 +24,7 @@ import com.lilac.utils.ThrowUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -31,8 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.fasterxml.jackson.databind.type.LogicalType.Map;
 
 /**
  * 空间用户服务实现类
@@ -44,6 +43,7 @@ public class SpaceUserServiceImpl extends ServiceImpl<SpaceUserMapper, SpaceUser
     @Resource
     private UserService userService;
     @Resource
+    @Lazy
     private SpaceService spaceService;
 
     /**

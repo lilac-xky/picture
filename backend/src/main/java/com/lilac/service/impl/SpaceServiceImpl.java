@@ -26,7 +26,6 @@ import com.lilac.service.UserService;
 import com.lilac.utils.ThrowUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.ibatis.annotations.Options;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 

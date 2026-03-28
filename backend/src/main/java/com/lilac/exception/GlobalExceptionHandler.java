@@ -1,5 +1,7 @@
 package com.lilac.exception;
 
+import cn.dev33.satoken.exception.NotLoginException;
+import cn.dev33.satoken.exception.NotPermissionException;
 import com.lilac.domain.result.Result;
 import com.lilac.enums.HttpsCodeEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,30 @@ public class GlobalExceptionHandler {
     public Result<Void> handleSystemException(BusinessException e) {
         log.warn("业务异常: code={}, msg={}", e.getCode(), e.getMessage());
         return Result.error(e.getCode(), e.getMessage());
+    }
+
+    /**
+     * 处理未登录异常
+     *
+     * @param e 未登录异常
+     * @return Result
+     */
+    @ExceptionHandler(NotLoginException.class)
+    public Result<?> notLoginException(NotLoginException e) {
+        log.error("NotLoginException", e);
+        return Result.error(HttpsCodeEnum.NEED_LOGIN, e.getMessage());
+    }
+
+    /**
+     * 处理未授权异常
+     *
+     * @param e 未授权异常
+     * @return Result
+     */
+    @ExceptionHandler(NotPermissionException.class)
+    public Result<?> notPermissionExceptionHandler(NotPermissionException e) {
+        log.error("NotPermissionException", e);
+        return Result.error(HttpsCodeEnum.UNAUTHORIZED, e.getMessage());
     }
 
     /**

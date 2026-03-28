@@ -475,8 +475,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         // 获取图片
         Picture oldPicture = this.getById(pictureId);
         ThrowUtils.throwIf(oldPicture == null, HttpsCodeEnum.NOT_FOUND_ERROR);
-        // 校验权限
-        checkPictureAuth(loginUser, oldPicture);
+        // 校验权限，已改为注解鉴权
+        // checkPictureAuth(loginUser, oldPicture);
         // 事务
         transactionTemplate.execute(status -> {
             // 删除
@@ -517,8 +517,8 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         long id = pictureEditRequest.getId();
         Picture oldPicture = this.getById(id);
         ThrowUtils.throwIf(oldPicture == null, HttpsCodeEnum.NOT_FOUND_ERROR);
-        // 校验权限
-        checkPictureAuth(loginUser, oldPicture);
+        // 校验权限，已改为注解鉴权
+        // checkPictureAuth(loginUser, oldPicture);
         // 填充审核参数
         fillReviewParams(picture, loginUser);
         boolean result = this.updateById(picture);

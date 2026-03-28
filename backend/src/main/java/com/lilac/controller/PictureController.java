@@ -18,6 +18,10 @@ import com.lilac.domain.vo.PictureVO;
 import com.lilac.enums.HttpsCodeEnum;
 import com.lilac.enums.PictureReviewStatusEnum;
 import com.lilac.exception.BusinessException;
+import com.lilac.manager.auth.SpaceUserAuthManager;
+import com.lilac.manager.auth.StpKit;
+import com.lilac.manager.auth.annotation.SaSpaceCheckPermission;
+import com.lilac.manager.auth.model.SpaceUserPermissionConstant;
 import com.lilac.service.PictureService;
 import com.lilac.service.SpaceService;
 import com.lilac.service.UserService;
@@ -33,7 +37,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -54,6 +57,9 @@ public class PictureController {
     private StringRedisTemplate stringRedisTemplate;
     @Resource
     private SpaceService spaceService;
+    @Resource
+    private SpaceUserAuthManager spaceUserAuthManager;
+
 
     /**
      * 本地缓存
@@ -73,6 +79,7 @@ public class PictureController {
      * @return 上传结果
      */
     @PostMapping("/upload")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.PICTURE_UPLOAD)
 //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public Result<PictureVO> uploadPicture(@RequestPart("file") MultipartFile multipartFile,
                                            PictureUploadRequest pictureUploadRequest, HttpServletRequest request) {
@@ -89,6 +96,7 @@ public class PictureController {
      * @return 上传结果
      */
     @PostMapping("/upload/url")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.PICTURE_UPLOAD)
     public Result<PictureVO> uploadPictureByUrl(@RequestBody PictureUploadRequest pictureUploadRequest, HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         String fileUrl = pictureUploadRequest.getFileUrl();
@@ -103,6 +111,7 @@ public class PictureController {
      * @return 删除结果
      */
     @PostMapping("/delete")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.PICTURE_DELETE)
     public Result<Boolean> deletePicture(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if(deleteRequest == null || deleteRequest.getId() <= 0){
             throw new BusinessException(HttpsCodeEnum.PARAMS_ERROR);
@@ -170,11 +179,19 @@ public class PictureController {
         ThrowUtils.throwIf(picture == null, HttpsCodeEnum.NOT_FOUND_ERROR);
         // 空间权限校验
         Long spaceId = picture.getSpaceId();
+        Space space = null;
         if(spaceId != null){
-            User loginUser = userService.getLoginUser(request);
-            pictureService.checkPictureAuth(loginUser, picture);
+            boolean hasPermission = StpKit.SPACE.hasPermission(SpaceUserPermissionConstant.PICTURE_VIEW);
+            ThrowUtils.throwIf(!hasPermission, HttpsCodeEnum.UNAUTHORIZED);
+            space = spaceService.getById(spaceId);
+            ThrowUtils.throwIf(space == null, HttpsCodeEnum.NOT_FOUND_ERROR, "空间不存在");
         }
-        return Result.success(pictureService.getPictureVO(picture, request));
+        // 获取权限
+        User loginUser = userService.getLoginUser(request);
+        List<String> permissionList = spaceUserAuthManager.getPermissionList(space, loginUser);
+        PictureVO pictureVO = pictureService.getPictureVO(picture, request);
+        pictureVO.setPermissionList(permissionList);
+        return Result.success(pictureVO);
     }
 
     /**
@@ -212,12 +229,15 @@ public class PictureController {
             pictureQueryRequest.setNullSpaceId(true);
         }else {
             // 私有空间
-            User loginUser = userService.getLoginUser(request);
-            Space space = spaceService.getById(spaceId);
-            ThrowUtils.throwIf(space == null, HttpsCodeEnum.NOT_FOUND_ERROR, "空间不存在");
-            if(!loginUser.getId().equals(space.getUserId())){
-                throw new BusinessException(HttpsCodeEnum.UNAUTHORIZED, "无权限访问该空间");
-            }
+            boolean hasPermission = StpKit.SPACE.hasPermission(SpaceUserPermissionConstant.PICTURE_VIEW);
+            ThrowUtils.throwIf(!hasPermission, HttpsCodeEnum.UNAUTHORIZED);
+            // 已修改为上诉鉴权
+//            User loginUser = userService.getLoginUser(request);
+//            Space space = spaceService.getById(spaceId);
+//            ThrowUtils.throwIf(space == null, HttpsCodeEnum.NOT_FOUND_ERROR, "空间不存在");
+//            if(!loginUser.getId().equals(space.getUserId())){
+//                throw new BusinessException(HttpsCodeEnum.UNAUTHORIZED, "无权限访问该空间");
+//            }
         }
         Page<Picture> picturePage = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
         return Result.success(pictureService.getPictureVOPage(picturePage, request));
@@ -277,6 +297,7 @@ public class PictureController {
      * @return 编辑结果
      */
     @PostMapping("/edit")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.PICTURE_EDIT)
     public Result<Boolean> editPicture(@RequestBody PictureEditRequest pictureEditRequest, HttpServletRequest request) {
         if(pictureEditRequest == null || pictureEditRequest.getId() <= 0){
             throw new BusinessException(HttpsCodeEnum.PARAMS_ERROR);
@@ -318,12 +339,13 @@ public class PictureController {
     }
 
     /**
-     * 图片批量上传
+     * 图片批量上传 (管理员)
      *
      * @param pictureUploadByBatchRequest 图片上传参数
      * @return 上传结果
      */
     @PostMapping("/upload/batch")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public Result<Integer> uploadPictureByBatch(@RequestBody PictureUploadByBatchRequest pictureUploadByBatchRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(pictureUploadByBatchRequest == null, HttpsCodeEnum.PARAMS_ERROR);
         User loginUser = userService.getLoginUser(request);
@@ -338,6 +360,7 @@ public class PictureController {
      * @return 编辑结果
      */
     @PostMapping("/edit/batch")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.PICTURE_EDIT)
     public Result<Boolean> editPictureByBatch(@RequestBody PictureEditByBatchRequest pictureEditByBatchRequest, HttpServletRequest request){
         ThrowUtils.throwIf(pictureEditByBatchRequest == null, HttpsCodeEnum.PARAMS_ERROR);
         User loginUser = userService.getLoginUser(request);

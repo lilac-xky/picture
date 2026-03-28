@@ -12,13 +12,13 @@ import com.lilac.domain.vo.SpaceVO;
 import com.lilac.enums.HttpsCodeEnum;
 import com.lilac.enums.SpaceLevelEnum;
 import com.lilac.exception.BusinessException;
+import com.lilac.manager.auth.SpaceUserAuthManager;
 import com.lilac.service.SpaceService;
 import com.lilac.service.UserService;
 import com.lilac.utils.ThrowUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -39,6 +39,8 @@ public class SpaceController {
     private UserService userService;
     @Resource
     private SpaceService spaceService;
+    @Resource
+    private SpaceUserAuthManager spaceUserAuthManager;
 
     /**
      * 添加空间
@@ -131,7 +133,12 @@ public class SpaceController {
         ThrowUtils.throwIf(id <= 0, HttpsCodeEnum.PARAMS_ERROR);
         Space space = spaceService.getById(id);
         ThrowUtils.throwIf(space == null, HttpsCodeEnum.NOT_FOUND_ERROR);
-        return Result.success(spaceService.getSpaceVO(space, request));
+        SpaceVO spaceVO = spaceService.getSpaceVO(space, request);
+        // 获取权限
+        User loginUser = userService.getLoginUser(request);
+        List<String> permissionList = spaceUserAuthManager.getPermissionList(space, loginUser);
+        spaceVO.setPermissionList(permissionList);
+        return Result.success(spaceVO);
     }
 
     /**

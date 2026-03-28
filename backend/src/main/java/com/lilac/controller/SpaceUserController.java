@@ -11,6 +11,8 @@ import com.lilac.domain.result.Result;
 import com.lilac.domain.vo.SpaceUserVO;
 import com.lilac.enums.HttpsCodeEnum;
 import com.lilac.exception.BusinessException;
+import com.lilac.manager.auth.annotation.SaSpaceCheckPermission;
+import com.lilac.manager.auth.model.SpaceUserPermissionConstant;
 import com.lilac.service.SpaceUserService;
 import com.lilac.service.UserService;
 import com.lilac.utils.ThrowUtils;
@@ -35,12 +37,13 @@ public class SpaceUserController {
     private UserService userService;
 
     /**
-     * 添加空间角色
+     * 添加空间成员
      *
-     * @param spaceUserAddRequest 添加空间角色请求
-     * @return 添加的空间角色id
+     * @param spaceUserAddRequest 添加空间成员请求
+     * @return 添加的空间成员id
      */
     @PostMapping("/add")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.SPACE_USER_MANAGE)
     public Result<Long> addSpaceUser(@RequestBody SpaceUserAddRequest spaceUserAddRequest) {
         ThrowUtils.throwIf(spaceUserAddRequest == null, HttpsCodeEnum.PARAMS_ERROR);
         long id = spaceUserService.addSpaceUser(spaceUserAddRequest);
@@ -48,12 +51,13 @@ public class SpaceUserController {
     }
 
     /**
-     * 删除空间角色
+     * 删除空间成员
      *
-     * @param deleteRequest 删除空间角色请求
+     * @param deleteRequest 删除空间成员请求
      * @return 删除结果
      */
     @PostMapping("/delete")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.SPACE_USER_MANAGE)
     public Result<Boolean> deleteSpaceUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(HttpsCodeEnum.PARAMS_ERROR);
@@ -69,12 +73,13 @@ public class SpaceUserController {
     }
 
     /**
-     * 获取空间角色
+     * 获取空间成员
      *
-     * @param spaceUserQueryRequest 获取空间角色请求
-     * @return 空间角色
+     * @param spaceUserQueryRequest 获取空间成员请求
+     * @return 空间成员
      */
     @PostMapping("/get")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.SPACE_USER_MANAGE)
     public Result<SpaceUser> getSpaceUser(@RequestBody SpaceUserQueryRequest spaceUserQueryRequest) {
         // 参数校验
         ThrowUtils.throwIf(spaceUserQueryRequest == null, HttpsCodeEnum.PARAMS_ERROR);
@@ -88,12 +93,13 @@ public class SpaceUserController {
     }
 
     /**
-     * 获取空间角色列表
+     * 获取空间成员列表
      *
-     * @param spaceUserQueryRequest 获取空间角色列表请求
-     * @return 空间角色列表
+     * @param spaceUserQueryRequest 获取空间成员列表请求
+     * @return 空间成员列表
      */
     @PostMapping("/list")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.SPACE_USER_MANAGE)
     public Result<List<SpaceUserVO>> listSpaceUser(@RequestBody SpaceUserQueryRequest spaceUserQueryRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(spaceUserQueryRequest == null, HttpsCodeEnum.PARAMS_ERROR);
         List<SpaceUser> spaceUserList = spaceUserService.list(spaceUserService.getQueryWrapper(spaceUserQueryRequest));
@@ -107,6 +113,7 @@ public class SpaceUserController {
      * @return 编辑结果
      */
     @PostMapping("/edit")
+    @SaSpaceCheckPermission(value = SpaceUserPermissionConstant.SPACE_USER_MANAGE)
     public Result<Boolean> editSpaceUser(@RequestBody SpaceUserEditRequest spaceUserEditRequest, HttpServletRequest request) {
         if (spaceUserEditRequest == null || spaceUserEditRequest.getId() <= 0) {
             throw new BusinessException(HttpsCodeEnum.PARAMS_ERROR);
