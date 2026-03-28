@@ -167,6 +167,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             session.removeAttribute(UserConstant.USER_LOGIN_STATE);
             session.invalidate();
         }
+        if (StpKit.SPACE.isLogin()) {
+            StpKit.SPACE.logout();
+        }
         return true;
     }
 

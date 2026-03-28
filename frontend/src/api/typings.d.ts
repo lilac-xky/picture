@@ -339,13 +339,14 @@ declare namespace API {
     userId?: number
     /** 空间 id（为空表示公共空间） */
     spaceId?: number
+    /** 权限列表 */
+    permissionList?: string[]
     /** 创建时间 */
     createTime?: string
     /** 编辑时间 */
     editTime?: string
     /** 更新时间 */
     updateTime?: string
-    /** 创建用户信息 */
     user?: UserVO
   }
 
@@ -395,6 +396,12 @@ declare namespace API {
     code?: number
     msg?: string
     data?: SpaceUserAnalyzeResponse[]
+  }
+
+  type ResultListSpaceUserVO = {
+    code?: number
+    msg?: string
+    data?: SpaceUserVO[]
   }
 
   type ResultLoginUserVO = {
@@ -454,14 +461,12 @@ declare namespace API {
   type ResultPictureVO = {
     code?: number
     msg?: string
-    /** 图片VO */
     data?: PictureVO
   }
 
   type ResultSpace = {
     code?: number
     msg?: string
-    /** 空间 */
     data?: Space
   }
 
@@ -471,10 +476,15 @@ declare namespace API {
     data?: SpaceUsageAnalyzeResponse
   }
 
+  type ResultSpaceUser = {
+    code?: number
+    msg?: string
+    data?: SpaceUser
+  }
+
   type ResultSpaceVO = {
     code?: number
     msg?: string
-    /** 空间视图对象 */
     data?: SpaceVO
   }
 
@@ -487,7 +497,6 @@ declare namespace API {
   type ResultUserVO = {
     code?: number
     msg?: string
-    /** 创建用户信息 */
     data?: UserVO
   }
 
@@ -508,6 +517,8 @@ declare namespace API {
     totalCount?: number
     /** 创建用户 id */
     userId?: number
+    /** 空间类型：0-私有 1-团队 */
+    spaceType?: number
     /** 创建时间 */
     createTime?: string
     /** 编辑时间 */
@@ -523,6 +534,8 @@ declare namespace API {
     spaceName?: string
     /** 空间级别：0-普通版 1-专业版 2-旗舰版 */
     spaceLevel?: number
+    /** 空间类型：0-私有 1-团队 */
+    spaceType?: number
   }
 
   type SpaceCategoryAnalyzeRequest = {
@@ -578,6 +591,8 @@ declare namespace API {
     spaceName?: string
     /** 空间级别：0-普通版 1-专业版 2-旗舰版 */
     spaceLevel?: number
+    /** 空间类型：0-私有 1-团队 */
+    spaceType?: number
   }
 
   type SpaceRankAnalyzeRequest = {
@@ -654,6 +669,30 @@ declare namespace API {
     countUsageRatio?: number
   }
 
+  type SpaceUser = {
+    /** id */
+    id?: number
+    /** 空间id */
+    spaceId?: number
+    /** 用户id */
+    userId?: number
+    /** 空间角色: viewer/editor/admin */
+    spaceRole?: string
+    /** 创建时间 */
+    createTime?: string
+    /** 更新时间 */
+    updateTime?: string
+  }
+
+  type SpaceUserAddRequest = {
+    /** 空间id */
+    spaceId?: number
+    /** 用户id */
+    userId?: number
+    /** 角色 */
+    spaceRole?: string
+  }
+
   type SpaceUserAnalyzeRequest = {
     /** 空间id */
     spaceId?: number
@@ -672,6 +711,41 @@ declare namespace API {
     period?: string
     /** 数量 */
     count?: number
+  }
+
+  type SpaceUserEditRequest = {
+    /** id */
+    id?: number
+    /** 空间角色 */
+    spaceRole?: string
+  }
+
+  type SpaceUserQueryRequest = {
+    /** id */
+    id?: number
+    /** 空间id */
+    spaceId?: number
+    /** 用户id */
+    userId?: number
+    /** 空间角色 */
+    spaceRole?: string
+  }
+
+  type SpaceUserVO = {
+    /** id */
+    id?: number
+    /** 空间id */
+    spaceId?: number
+    /** 用户id */
+    userId?: number
+    /** 空间角色 */
+    spaceRole?: string
+    /** 创建时间 */
+    createTime?: string
+    /** 更新时间 */
+    updateTime?: string
+    user?: UserVO
+    space?: SpaceVO
   }
 
   type SpaceVO = {
@@ -697,8 +771,11 @@ declare namespace API {
     editTime?: string
     /** 更新时间 */
     updateTime?: string
-    /** 创建用户信息 */
     user?: UserVO
+    /** 空间类型：0-私有 1-团队 */
+    spaceType?: number
+    /** 用户权限列表 */
+    permissionList?: string[]
   }
 
   type uploadPictureParams = {

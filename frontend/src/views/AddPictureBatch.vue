@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { editPicture, uploadPictureByBatch } from '@/api/pictureController';
+import { uploadPictureByBatch } from '@/api/pictureController';
 import { message } from 'ant-design-vue';
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';

@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotLoginException.class)
     public Result<?> notLoginException(NotLoginException e) {
         log.error("NotLoginException", e);
-        return Result.error(HttpsCodeEnum.NEED_LOGIN, e.getMessage());
+        return Result.error(HttpsCodeEnum.NEED_LOGIN);
     }
 
     /**

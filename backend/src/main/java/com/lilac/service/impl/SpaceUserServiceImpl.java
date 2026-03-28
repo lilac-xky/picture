@@ -173,7 +173,7 @@ public class SpaceUserServiceImpl extends ServiceImpl<SpaceUserMapper, SpaceUser
         Long spaceId = spaceUser.getSpaceId();
         Long userId = spaceUser.getUserId();
         if (add) {
-            ThrowUtils.throwIf(ObjectUtil.hasEmpty(spaceId, userId), HttpsCodeEnum.UNAUTHORIZED);
+            ThrowUtils.throwIf(ObjectUtil.hasEmpty(spaceId, userId), HttpsCodeEnum.PARAMS_ERROR, "空间、用户不能为空");
             User user = userService.getById(userId);
             ThrowUtils.throwIf(user == null, HttpsCodeEnum.NOT_FOUND_ERROR, "用户不存在");
             Space space = spaceService.getById(spaceId);

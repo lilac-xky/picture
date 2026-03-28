@@ -3,7 +3,7 @@ server:
     context-path: /api
     session:
       cookie:
-        max-age: 2592000
+        max-age: 604800
 
 spring:
   profiles:

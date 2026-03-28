@@ -20,11 +20,11 @@
               </template>
             </a-card-meta>
             <template v-if="showOp" #actions>
-              <a-space @click="(e: MouseEvent) => doEdit(picture, e)">
+              <a-space v-if="canEdit" @click="(e: MouseEvent) => doEdit(picture, e)">
                 <EditOutlined />
                 编辑
               </a-space>
-              <a-space @click="(e: MouseEvent) => doDelete(picture, e)">
+              <a-space v-if="canDelete" @click="(e: MouseEvent) => doDelete(picture, e)">
                 <DeleteOutlined />
                 删除
               </a-space>
@@ -37,7 +37,7 @@
         </a-list-item>
       </template>
     </a-list>
-    <ShareModel ref="shareModelRef" :title="shareTitle" :link="shareLink"/>
+    <ShareModel ref="shareModelRef" :title="shareTitle" :link="shareLink" />
   </div>
 </template>
 
@@ -54,12 +54,16 @@ interface Props {
   loading?: boolean
   showOp?: boolean
   onReload?: () => void
+  canEdit?: boolean
+  canDelete?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   dataList: () => [],
   loading: false,
   showOp: false,
+  canEdit: false,
+  canDelete: false,
 })
 
 // 跳转至图片详情
@@ -86,7 +90,7 @@ const doEdit = (picture: API.PictureVO, e: MouseEvent) => {
 const doDelete = async (picture: API.PictureVO, e: MouseEvent) => {
   e.stopPropagation()
   const id = picture.id
-  if(!id) {
+  if (!id) {
     return
   }
   const res = await deletePicture({ id });

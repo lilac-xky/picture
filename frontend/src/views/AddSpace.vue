@@ -1,7 +1,7 @@
 <template>
     <div id="addSpace">
         <h2 style="margin-bottom: 16px;">
-            {{ route.query?.id ? '编辑空间' : '添加空间' }}
+            {{ route.query?.id ? '编辑' : '创建' }} {{ SPACE_TYPE_MAP[spaceType] }}
         </h2>
         <!-- 空间信息表单 -->
         <a-form layout="vertical" name="spaceForm" :model="spaceForm" @finish="handleSubmit">
@@ -31,10 +31,10 @@
 
 <script setup lang="ts">
 import { addSpace, getSpaceVoById, listSpaceLevel, updateSpace } from '@/api/spaceController';
-import { SPACE_LEVEL_OPTIONS } from '@/constant/space';
+import { SPACE_LEVEL_OPTIONS, SPACE_TYPE_ENUM, SPACE_TYPE_MAP } from '@/constant/space';
 import { formatSize } from '@/utils';
 import { message } from 'ant-design-vue';
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // 表单数据类型
@@ -46,8 +46,17 @@ interface SpaceFormType {
 const space = ref<API.SpaceVO>();
 const spaceForm = reactive<SpaceFormType>({});
 const loading = ref(false);
+const route = useRoute();
 
 const spaceLevelList = ref<API.SpaceLevel[]>([]);
+
+// 空间类型
+const spaceType = computed(() => {
+    if (route.query?.type) {
+        return Number(route.query.type)
+    }
+    return SPACE_TYPE_ENUM.PRIVATE
+})
 
 // 获取空间级别列表
 const fetchSpaceLevelList = async () => {
@@ -63,29 +72,32 @@ const router = useRouter();
 // 提交表单
 const handleSubmit = async (values: any) => {
     loading.value = true;
-    const spaceId = space.value?.id;
-    let res;
-    if (spaceId) {
-        res = await updateSpace({
-            id: spaceId,
-            ...spaceForm,
-        })
-    } else {
-        res = await addSpace({
-            ...spaceForm,
-        });
+    try {
+        const spaceId = space.value?.id;
+        let res;
+        if (spaceId) {
+            res = await updateSpace({
+                id: spaceId,
+                ...spaceForm,
+            })
+        } else {
+            res = await addSpace({
+                ...spaceForm,
+                spaceType: spaceType.value
+            });
+        }
+        if (res.data?.data) {
+            message.success('操作成功');
+            router.push(`/space/${res.data?.data}`);
+        } else {
+            message.error('操作失败，请重试');
+        }
+    }finally {
+        loading.value = false;
     }
-    if (res.data?.data) {
-        message.success('操作成功');
-        router.push(`/space/${res.data?.data}`);
-    } else {
-        message.error('操作失败，请重试');
-    }
-    loading.value = false;
 };
 
 // 获取空间信息
-const route = useRoute();
 const getOldSpace = async () => {
     const id = route.query.id;
     if (id) {

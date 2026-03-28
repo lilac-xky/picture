@@ -197,7 +197,7 @@ export async function uploadPicture(
   })
 }
 
-/** 图片批量上传 POST /api/picture/upload/batch */
+/** 图片批量上传 (管理员) POST /api/picture/upload/batch */
 export async function uploadPictureByBatch(
   body: API.PictureUploadByBatchRequest,
   options?: { [key: string]: any }

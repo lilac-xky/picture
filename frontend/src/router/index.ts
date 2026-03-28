@@ -12,6 +12,7 @@ import AddSpace from '@/views/AddSpace.vue'
 import MySpace from '@/views/MySpace.vue'
 import SpaceDetail from '@/views/SpaceDetail.vue'
 import SpaceAnalyze from '@/views/SpaceAnalyze.vue'
+import SpaceUserManage from '@/views/admin/SpaceUserManage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -72,6 +73,12 @@ const router = createRouter({
       path: '/space_analyze',
       name: 'spaceAnalyze',
       component: SpaceAnalyze,
+    },
+    {
+      path: '/spaceUserManage/:id',
+      name: 'spaceUserManage',
+      component: SpaceUserManage,
+      props: true,
     },
     {
       path: '/admin/pictureManage',

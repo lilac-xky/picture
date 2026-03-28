@@ -84,10 +84,11 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         if(spaceId != null){
             Space space = spaceService.getById(spaceId);
             ThrowUtils.throwIf(space == null, HttpsCodeEnum.NOT_FOUND_ERROR, "空间不存在");
+            // 改为统一鉴权
             // 校验空间权限,仅空间管理员才能上传图片
-            if(!loginUser.getId().equals(space.getUserId())){
-                throw new BusinessException(HttpsCodeEnum.UNAUTHORIZED, "无空间权限");
-            }
+//            if(!loginUser.getId().equals(space.getUserId())){
+//                throw new BusinessException(HttpsCodeEnum.UNAUTHORIZED, "无空间权限");
+//            }
             // 校验额度
             if(space.getTotalCount() >= space.getMaxCount()){
                 throw new BusinessException(HttpsCodeEnum.OPERATION_ERROR, "空间数量不足");
@@ -105,10 +106,11 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         if(pictureId != null){
             Picture oldPicture = this.getById(pictureId);
             ThrowUtils.throwIf(oldPicture == null, HttpsCodeEnum.NOT_FOUND_ERROR, "图片不存在");
+            // 已改为统一鉴权
             // 仅允许本人和管理员上传图片
-            if(!loginUser.getId().equals(oldPicture.getUserId()) && !userService.isAdmin(loginUser)){
-                throw new BusinessException(HttpsCodeEnum.UNAUTHORIZED);
-            }
+//            if(!loginUser.getId().equals(oldPicture.getUserId()) && !userService.isAdmin(loginUser)){
+//                throw new BusinessException(HttpsCodeEnum.UNAUTHORIZED);
+//            }
             // 校验空间是否一致
             if(spaceId == null){
                 if(oldPicture.getSpaceId() != null){

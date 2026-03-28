@@ -39,8 +39,8 @@
                 <DownloadOutlined />
               </template>
             </a-button>
-            <a-button v-if="canEdit" :icon="h(EditOutlined)" type="default" @click="doEdit">编辑</a-button>
-            <a-button v-if="canEdit" :icon="h(DeleteOutlined)" danger @click="doDelete">删除</a-button>
+            <a-button v-if="canEditPicture" :icon="h(EditOutlined)" type="default" @click="doEdit">编辑</a-button>
+            <a-button v-if="canDeletePicture" :icon="h(DeleteOutlined)" danger @click="doDelete">删除</a-button>
             <a-button :icon="h(ShareAltOutlined)" type="primary" ghost @click="doShare">分享</a-button>
           </a-space>
         </a-card>
@@ -56,9 +56,9 @@ import { downloadImage, formatSize } from '@/utils';
 import { message } from 'ant-design-vue';
 import { DeleteOutlined, DownloadOutlined, EditOutlined, ShareAltOutlined } from '@ant-design/icons-vue';
 import { computed, h, onMounted, ref } from 'vue';
-import { useLoginUserStore } from '@/stores/useLoginUserStore';
 import { useRouter } from 'vue-router';
 import ShareModel from '@/components/ShareModal.vue';
+import { SPACE_PERMISSION_ENUM } from '@/constant/space';
 
 // 图片参数
 interface Props {
@@ -67,6 +67,16 @@ interface Props {
 
 const props = defineProps<Props>();
 const picture = ref<API.PictureVO>({});
+
+// 创建权限校验通用函数
+function createPermissionChecker(permission: string) {
+  return computed(() => {
+    return (picture.value.permissionList ?? []).includes(permission)
+  })
+}
+// 权限检查
+const canEditPicture = createPermissionChecker(SPACE_PERMISSION_ENUM.PICTURE_EDIT)
+const canDeletePicture = createPermissionChecker(SPACE_PERMISSION_ENUM.PICTURE_DELETE)
 
 // 获取图片详情
 const fetchPictureDetail = async () => {
@@ -78,22 +88,8 @@ const fetchPictureDetail = async () => {
       message.error('未找到图片详情');
     }
   } catch (error) {
-    message.error('获取图片详情失败，请重试');
   }
 };
-
-const loginUserStore = useLoginUserStore();
-
-// 是否具有编辑权限
-const canEdit = computed(() => {
-  const loginUser = loginUserStore.loginUser;
-  if (!loginUser.id) {
-    return false;
-  }
-  // 只有管理员或图片作者可以编辑
-  const user = picture.value.user || {};
-  return loginUser.id === user.id || loginUser.userRole === 'admin';
-});
 
 const router = useRouter();
 // 编辑图片
