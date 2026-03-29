@@ -2,6 +2,7 @@ package com.lilac.manager.websocket;
 
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
+import com.lilac.constant.UserConstant;
 import com.lilac.domain.entity.Picture;
 import com.lilac.domain.entity.Space;
 import com.lilac.domain.entity.User;
@@ -18,6 +19,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.session.Session;
+import org.springframework.session.SessionRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
@@ -44,6 +47,9 @@ public class WsHandshakeInterceptor implements HandshakeInterceptor {
     @Resource
     private SpaceUserAuthManager spaceUserAuthManager;
 
+    @Resource
+    private SessionRepository<? extends Session> sessionRepository;
+
     /**
      * 握手前拦截
      */
@@ -57,10 +63,29 @@ public class WsHandshakeInterceptor implements HandshakeInterceptor {
                 log.error("缺少图片参数，拒绝握手");
                 return false;
             }
-            // 获取登录用户
-            User loginUser = userService.getLoginUser(servletRequest);
+            // 从 URL 参数中获取 token（实际上是 Session ID）
+            String token = servletRequest.getParameter("token");
+            if (StrUtil.isBlank(token)) {
+                log.error("缺少 token 参数，拒绝握手");
+                return false;
+            }
+            // 通过 Session ID 获取 Session 并恢复用户信息
+            User loginUser = null;
+            try {
+                Session session = sessionRepository.findById(token);
+                if (session != null) {
+                    Object userObj = session.getAttribute(UserConstant.USER_LOGIN_STATE);
+                    if (userObj instanceof User) {
+                        User user = (User) userObj;
+                        // 从数据库中查询最新的用户信息
+                        loginUser = userService.getById(user.getId());
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Session 验证失败: {}", e.getMessage());
+            }
             if (ObjUtil.isEmpty(loginUser)) {
-                log.error("用户未登录，拒绝握手");
+                log.error("用户未登录或 token 无效，拒绝握手");
                 return false;
             }
             // 获取图片
